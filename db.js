@@ -11,7 +11,11 @@ const { Pool } = require('pg');
 */
 
 // Получение строки подключения из переменных окружения Render.com
-const connectionString = process.env.DATABASE_URL;
+// Инициализация пула с использованием переменной окружения
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
 // Проверка подключения
 pool.query('SELECT NOW()')
