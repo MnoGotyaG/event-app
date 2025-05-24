@@ -2,8 +2,8 @@ const bcrypt = require('bcryptjs');
 const db = require('./db'); // Путь к db.js
 
 const adminData = {
-  email: 'admin@gmail.com',
-  password: 'secret123'
+  email: '',
+  password: ''
 };
 
 (async () => {
