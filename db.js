@@ -1,13 +1,17 @@
 // db.js
 const { Pool } = require('pg');
 
-const pool = new Pool({
+/*const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
   database: 'event_platform',
   password: 'vfr2012cbv',
   port: 5432
 });
+*/
+
+// Получение строки подключения из переменных окружения Render.com
+const connectionString = process.env.DATABASE_URL;
 
 // Проверка подключения
 pool.query('SELECT NOW()')
