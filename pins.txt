@@ -1,0 +1,1 @@
+DATABASE_URL=postgresql://user:vfr2012cbv@localhost:5432/event_platform
