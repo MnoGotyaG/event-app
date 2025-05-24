@@ -12,10 +12,12 @@ const { Pool } = require('pg');
 
 // Получение строки подключения из переменных окружения Render.com
 // Инициализация пула с использованием переменной окружения
+// db.js
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false // Обязательно для внешних подключений
+    rejectUnauthorized: false, // Для Render PostgreSQL
+    require: true // Обязательное SSL-подключение
   }
 });
 

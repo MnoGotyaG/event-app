@@ -1,1 +1,27 @@
-DATABASE_URL=postgresql://user:vfr2012cbv@localhost:5432/event_platform
+-- Создание 20 пользователей
+INSERT INTO users (
+    first_name, 
+    last_name, 
+    email, 
+    password_hash, 
+    confirmed
+)
+SELECT 
+    'User' || num,
+    'Test' || num,
+    'user' || num || '@test.com',
+    -- Хеш для пароля "password"
+    '$2a$12$3Qx7WUu5sZ6p4kD8vJQzEeY0yjL7bN8qR0dS1cT2vW3xYzA1B2C3D', 
+    TRUE
+FROM generate_series(1, 20) AS num;
+
+-- Запись всех пользователей на мероприятие с ID=1
+INSERT INTO user_events (user_id, event_id)
+SELECT 
+    u.id,
+    1  -- Замените на реальный ID мероприятия
+FROM users u
+WHERE u.email LIKE 'user%@test.com';
+
+Пароль для всех 20 тестовых пользователей:
+password
