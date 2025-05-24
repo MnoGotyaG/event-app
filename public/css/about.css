@@ -1,0 +1,101 @@
+/* about.css */
+/* Основные стили */
+.about-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 20px;
+    color: #000000; /* Черный цвет по умолчанию для всего контейнера */
+}
+
+h1, h2 {
+    color: #c97422 !important; /* Темно-синий для заголовков */
+}
+
+/* Форма отзыва */
+.review-form {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+}
+
+.review-form label {
+    color: #000000 !important; /* Черный цвет для меток */
+    font-weight: 600;
+    display: block;
+    margin: 1rem 0 0.5rem;
+}
+
+.review-form select, 
+.review-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #000000 !important; /* Черный цвет для текста ввода */
+}
+
+/* Список отзывов */
+.reviews-list {
+    margin-top: 3rem;
+}
+
+.review-card {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Заголовок отзыва */
+.review-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 1rem;
+}
+
+.author {
+    color: #000000 !important; /* Черный цвет имени */
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.date {
+    color: #666666 !important; /* Серый цвет даты */
+    margin-left: auto;
+}
+
+/* Звезды рейтинга */
+.rating {
+    color: #f1c40f; /* Золотой цвет звезд */
+    font-size: 1.3rem;
+}
+
+.star.active {
+    color: #f1c40f !important;
+}
+
+/* Текст отзыва */
+.review-text {
+    color: #000000 !important; /* Черный цвет текста */
+    line-height: 1.6;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .review-header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .date {
+        margin-left: 0;
+        width: 100%;
+    }
+}

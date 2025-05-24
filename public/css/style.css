@@ -1,0 +1,220 @@
+/* Общий стиль для всей страницы */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #2f3640; /* Темно-серый фон */
+  color: #f1f1f1; /* Светлый текст для контраста */
+  margin: 0;
+  padding: 0;
+}
+
+/* Header */
+header {
+  background-color: #e67e22; /* Темно-оранжевый цвет для меню */
+  padding: 15px 0;
+}
+
+header nav {
+  text-align: center;
+}
+
+header nav a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 15px;
+  font-size: 18px;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+header nav a:hover {
+  color: #d35400; /* Более светлый оранжевый при наведении */
+}
+
+/* Main Section */
+main {
+  padding: 30px;
+  text-align: center;
+}
+
+/* Заголовки и текст на главной */
+h1 {
+  font-size: 36px;
+  margin-bottom: 20px;
+  color: #e67e22; /* Светло-оранжевый для заголовка */
+}
+
+p {
+  font-size: 22px; /* Увеличил размер текста для описания */
+  margin-bottom: 30px;
+  line-height: 1.6;
+  max-width: 700px; /* Ограничение ширины для лучшего восприятия */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Кнопка "Подробнее о нас" */
+a.more-info {
+  display: inline-block;
+  padding: 15px 30px;
+  margin-top: 20px;
+  background-color: #e67e22; /* Оранжевая кнопка */
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+a.more-info:hover {
+  background-color: #d35400; /* Ярко-оранжевый при наведении */
+  transform: scale(1.05); /* Легкое увеличение кнопки при наведении */
+}
+
+/* Блок с точками */
+.locations-gallery {
+  margin-top: 50px;
+}
+
+.locations-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.location-card {
+  background-color: #34495e; /* Темно-серый фон для карточек */
+  color: #ecf0f1; /* Светлый цвет текста */
+  padding: 20px;
+  margin: 10px;
+  width: 200px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.location-card:hover {
+  transform: scale(1.05); /* Увеличение карточки при наведении */
+  background-color: #e67e22; /* Оранжевый цвет фона при наведении */
+}
+
+.location-card h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.location-card p {
+  font-size: 16px;
+}
+
+/* Footer */
+footer {
+  background-color: #e67e22; /* Темно-оранжевый фон для подвала */
+  color: #fff; /* Белый текст */
+  text-align: center;
+  padding: 20px 0;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+}
+
+footer .footer-left {
+  text-align: left;
+  font-size: 12px;
+}
+
+footer .footer-right {
+  text-align: right;
+}
+
+footer .footer-text {
+  font-size: 14px;
+  color: #fff; /* Светлый цвет для дополнительного текста */
+}
+
+footer .social-links a {
+  margin: 0 10px;
+  color: #fff;
+  text-decoration: none;
+}
+
+footer .contact-info {
+  font-size: 14px;
+}
+
+footer .contact-info p {
+  margin: 5px 0;
+}
+
+footer .contact-info a {
+  color: #fff;
+  text-decoration: none;
+}
+
+footer .social-links a:hover,
+footer .contact-info a:hover {
+  text-decoration: underline;
+}
+
+footer .footer-center {
+  font-size: 14px;
+  text-align: center;
+  margin-top: 10px;
+  color: #ecf0f1;
+}
+
+
+/* Events */
+.event-container {
+  background-color: #2f2f2f;
+  color: #f5f5f5;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(255, 140, 0, 0.3);
+}
+
+.btn-orange {
+  background-color: #ff6600;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 1rem;
+}
+
+.btn-orange:hover {
+  background-color: #e65c00;
+}
+
+.registered-msg {
+  color: #00cc66;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+
+/* Стили для выбора города */
+.city-selector {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+.city-selector select {
+    padding: 8px 15px;
+    border: 2px solid #2c3e50;
+    border-radius: 20px;
+    background: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.city-selector select:hover {
+    border-color: #3498db;
+}

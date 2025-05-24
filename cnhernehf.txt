@@ -1,0 +1,23 @@
+event-app/
+├── public/                  # Статичные файлы (CSS, JS, изображения)
+│   └── css/
+│       └── style.css
+├── routes/                  # Маршруты приложения
+│   ├── index.js             # Главная и публичные маршруты
+│   ├── events.js            # Страница мероприятий
+│   ├── users.js             # Регистрация / ЛК / авторизация
+│   └── admin.js             # Админка
+├── views/                   # EJS-шаблоны
+│   ├── partials/            # Повторяющиеся части (header, footer)
+│   ├── index.ejs            # Главная
+│   ├── about.ejs            # О нас
+│   ├── events.ejs           # Список мероприятий
+│   ├── login.ejs            # Вход
+│   ├── register.ejs         # Регистрация
+│   ├── profile.ejs          # ЛК
+│   ├── admin.ejs            # Админка
+├── .env                     # Конфигурация окружения
+├── app.js                   # Главный файл приложения
+├── package.json             # Информация о проекте
+├── db.js                    # Подключение к PostgreSQL
+└── README.md

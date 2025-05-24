@@ -1,0 +1,502 @@
+/* Глобальные настройки */
+body {
+  color: #000;
+  background: #2c3e50; /* Темно-синий фон */
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6,
+p, a, span, li, td, th,
+input, textarea, select, label {
+  color: inherit;
+}
+
+/* Стили для кнопки подтверждение*/
+.btn-confirm {
+    background: #27ae60;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.3s;
+}
+
+.btn-confirm:hover {
+    background: #219a52;
+}
+
+.no-data {
+    color: #95a5a6;
+    font-style: italic;
+}
+
+/* Основные стили админ-панели */
+.admin-container {
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 0 20px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Навигационные вкладки */
+.admin-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+}
+
+.tab-link {
+  padding: 12px 25px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  text-decoration: none;
+  color: #fff;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tab-link:hover {
+  background: rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+}
+
+.tab-link.active {
+  background: #3f51b5;
+  color: white;
+}
+
+/* Контент вкладок */
+.tab-content {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.tab-pane {
+  display: none;
+}
+
+.tab-pane.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Таблицы */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.data-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.data-table tr:hover {
+  background: #f8f9fa;
+}
+
+/* Формы */
+.form-container {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.hidden-form {
+  display: none;
+}
+
+/* Кнопки */
+.btn-confirm {
+  background: #27ae60;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-add {
+  background: #3f51b5;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-edit {
+  background: #ffc107;
+  color: #000;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+.btn-save {
+  background: #28a745;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background: #6c757d;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Карточки */
+.cards-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.event-card,
+.location-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border: 1px solid #eee;
+}
+
+/* Специфичные стили для локаций */
+.location-card {
+  color: #000; /* Чёрный цвет текста */
+}
+
+.event-card h3 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+.event-details p {
+  margin: 0.5rem 0;
+  color: #666;
+}
+
+/* Модальные окна */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 25px;
+  width: 60%;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.close:hover {
+  color: #666;
+}
+
+/* Статистика */
+.stats-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.stat-box {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.chart-placeholder {
+  height: 300px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.top-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Убираем скролл в мероприятиях */
+#events .scroll-container {
+  max-height: none;
+  overflow-y: visible;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .admin-container {
+    padding: 0 15px;
+  }
+
+  .admin-tabs {
+    flex-wrap: wrap;
+  }
+
+  .tab-link {
+    flex: 1 1 100%;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .modal-content {
+    width: 90%;
+    margin: 10% auto;
+  }
+
+  .stats-container {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Дополнительные элементы */
+.scroll-container {
+  margin: 1rem 0;
+}
+
+.location-actions,
+.event-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* В раздел статистики */
+.stat-box table {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.stat-box th {
+  background: #f8f9fa;
+  padding: 12px;
+  text-align: left;
+}
+
+.stat-box td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.stat-box tr:hover {
+  background-color: #f8f9fa;
+}
+
+
+
+/* Стили для вкладки подтверждения */
+#attendance .filters {
+    margin: 20px 0;
+}
+
+#attendance select {
+    padding: 10px;
+    width: 300px;
+}
+
+.attendance-list {
+    margin-top: 20px;
+}
+
+.attendance-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.attendance-item label {
+    margin-left: 15px;
+    flex-grow: 1;
+}
+
+.attendance-item input[type="checkbox"] {
+    transform: scale(1.3);
+}
+
+/* Стили для вкладки подтверждения */
+#attendance .filters {
+    margin: 20px 0;
+}
+
+#attendance select {
+    padding: 10px;
+    width: 300px;
+}
+
+.attendance-list {
+    margin-top: 20px;
+}
+
+.attendance-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.attendance-item label {
+    margin-left: 15px;
+    flex-grow: 1;
+}
+
+.attendance-item input[type="checkbox"] {
+    transform: scale(1.3);
+}
+
+
+/*Подтверждение*/
+/* Стили для вкладки подтверждения */
+#attendance {
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+#attendance .filters {
+    margin-bottom: 25px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+#eventFilter {
+    padding: 10px 15px;
+    border: 2px solid #3498db;
+    border-radius: 6px;
+    width: 350px;
+    font-size: 16px;
+    background: #f8f9fa;
+}
+
+.attendance-list {
+    max-height: 600px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.attendance-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    margin: 8px 0;
+    background: #f8f9fa;
+    border-radius: 6px;
+    transition: background 0.3s;
+}
+
+.attendance-item:hover {
+    background: #e9ecef;
+}
+
+.attendance-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 15px;
+    cursor: pointer;
+}
+
+.attendance-item label {
+    font-size: 16px;
+    color: #2c3e50;
+    flex-grow: 1;
+}
+
+/* Стили для таблицы */
+
+.data-table td:nth-child(4) {
+    text-align: center;
+    color: #27ae60;
+    font-weight: bold;
+}

@@ -1,0 +1,170 @@
+<%- include('partials/header', { 
+  stylesheet: '/css/events.css',
+  title: 'Мероприятия'
+}) %>
+
+<div class="filters-container">
+  <form id="filterForm" method="GET">
+    <div class="filter-group">
+      <label>Метро и адрес:</label>
+      <select name="location" id="locationFilter">
+        <option value="">Все точки</option>
+        <% locations.forEach(loc => { %>
+          <option 
+            value="<%= loc.id %>"
+            <%= loc.id === parseInt(queryLocation) ? 'selected' : '' %>
+          >
+            <%= loc.metro_station %> - <%= loc.address %>
+          </option>
+        <% }); %>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      
+      <label>Тематика:</label>
+      <select name="theme" id="themeFilter">
+        <option value="">Все темы</option>
+        <% themes.forEach(th => { %>
+          <option 
+            value="<%= th.id %>"
+            <%= th.id === parseInt(queryTheme) ? 'selected' : '' %>
+          >
+            <%= th.name %>
+          </option>
+        <% }); %>
+      </select>
+    </div>
+    
+    <button type="submit">Применить фильтры</button>
+  </form>
+</div>
+
+<div class="events-grid">
+  <% if (events.length === 0) { %>
+    <div class="no-events">
+      <p>На ближайшие две недели мероприятий не запланировано</p>
+    </div>
+  <% } %>
+
+  <% events.forEach(event => { %>
+    <div class="event-card" data-event-id="<%= event.id %>">
+      <h3><%= event.title %></h3>
+      <div class="event-meta">
+        <span class="date">
+          <%= new Date(event.event_date).toLocaleDateString('ru-RU') %>
+        </span>
+        <span class="time">
+          <%= new Date(event.event_date).toLocaleTimeString('ru-RU', {
+            hour: '2-digit',
+            minute: '2-digit'
+          }) %>
+        </span>
+      </div>
+      <div class="location-info">
+        <span class="metro"><%= event.metro_station %></span>
+        <span class="address"><%= event.address %></span>
+      </div>
+    </div>
+  <% }); %>
+</div>
+
+<!-- Модальное окно -->
+<div id="eventModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2 id="modalTitle"></h2>
+    <div class="modal-body">
+      <div class="modal-row">
+        <span class="label">Дата и время:</span>
+        <span id="modalDateTime" class="value"></span>
+      </div>
+      <div class="modal-row">
+        <span class="label">Место проведения:</span>
+        <span id="modalLocation" class="value"></span>
+      </div>
+      <div class="modal-description">
+        <p id="modalDescription"></p>
+      </div>
+      <button id="registerBtn" class="btn-primary">Зарегистрироваться</button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Обработчик клика по карточке мероприятия
+  document.querySelectorAll('.event-card').forEach(card => {
+    card.addEventListener('click', async (e) => {
+      try {
+        const eventId = card.dataset.eventId;
+        const response = await fetch(`/events/${eventId}`);
+        
+        if (!response.ok) throw new Error('Ошибка загрузки');
+        
+        const event = await response.json();
+        const eventDate = new Date(event.event_date);
+
+        // Заполнение данных модального окна
+        document.getElementById('modalTitle').textContent = event.title;
+        document.getElementById('modalDateTime').textContent = 
+          `${eventDate.toLocaleDateString('ru-RU')} ${eventDate.toLocaleTimeString('ru-RU', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          })}`;
+        document.getElementById('modalLocation').textContent = 
+          `${event.metro_station}, ${event.address}`;
+        document.getElementById('modalDescription').textContent = event.description;
+
+        // Настройка кнопки регистрации
+        const registerBtn = document.getElementById('registerBtn');
+        registerBtn.dataset.eventId = eventId;
+        registerBtn.onclick = handleRegistration;
+
+        // Показ модального окна
+        document.getElementById('eventModal').style.display = 'flex';
+      } catch (error) {
+        console.error(error);
+        alert('Ошибка загрузки данных мероприятия');
+      }
+    });
+  });
+
+  // Обработчик регистрации
+  async function handleRegistration() {
+    const eventId = this.dataset.eventId;
+    
+    try {
+      const response = await fetch(`/events/${eventId}/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin'
+      });
+
+      const result = await response.json();
+      
+      if (result.redirect) {
+        window.location.href = result.redirect;
+      } else if (result.error) {
+        alert(result.error);
+      } else {
+        alert(result.message);
+        document.getElementById('eventModal').style.display = 'none';
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Ошибка соединения с сервером');
+    }
+  }
+
+  // Закрытие модального окна
+  document.querySelector('.close').addEventListener('click', () => {
+    document.getElementById('eventModal').style.display = 'none';
+  });
+});
+</script>
+
+<%- include('partials/footer') %>

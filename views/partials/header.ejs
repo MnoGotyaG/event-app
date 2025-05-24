@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <% if (stylesheet) { %>
+    <link rel="stylesheet" href="<%= stylesheet %>">
+  <% } %>
+</head>
+<body>
+
+<header>
+  <nav>
+  <div class="city-selector">
+    <form action="/set-city" method="POST">
+        <select name="city" onchange="this.form.submit()">
+            <option value="">Выберите город</option>
+            <% cities.forEach(city => { %>
+                <option 
+                    value="<%= city.id %>"
+                    <%= sessionCity == city.id ? 'selected' : '' %>
+                >
+                    <%= city.name %>
+                </option>
+            <% }) %>
+        </select>
+    </form>
+</div>
+  <a href="/">Главная</a>
+  <a href="/events">Мероприятия</a>
+  <a href="/about">О нас</a>
+
+  <% if (admin) { %>
+    <a href="/admin/dashboard">Панель управления</a>
+    <a href="/admin/logout">Выйти</a>
+  <% } else if (user) { %>
+    <a href="/users/profile">Личный кабинет</a>
+    <a href="/users/logout">Выйти</a>
+  <% } else { %>
+    <a href="/users/login">Вход</a>
+  <% } %>
+</nav>
+</header>

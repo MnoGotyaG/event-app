@@ -1,0 +1,111 @@
+<%- include('partials/header', { 
+    title: 'Профиль',
+    stylesheet: '/css/profile.css'
+}) %>
+
+<main class="profile-container">
+    <!-- Блок статуса подтверждения -->
+    <% if (!user.is_verified) { %>
+    <div class="verification-warning">
+        ⚠️ Пользователь не подтвержден. Принесите паспорт на первое мероприятие.
+    </div>
+    <% } %>
+
+    <div class="profile-layout">
+        <!-- Левая колонка - данные пользователя -->
+        <div class="user-data">
+            <h1>Личные данные</h1>
+            
+            <form action="/users/update" method="POST">
+                <div class="form-group">
+                    <label>Имя*</label>
+                    <input type="text" name="first_name" 
+                           value="<%= user.first_name %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Фамилия*</label>
+                    <input type="text" name="last_name" 
+                           value="<%= user.last_name %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Отчество</label>
+                    <input type="text" name="patronymic" 
+                           value="<%= user.patronymic || '' %>">
+                </div>
+
+                <div class="passport-notice">
+                    Укажите имя, как написано в паспорте. Несовпадение данных 
+                    запрещает посещение мероприятий.
+                </div>
+
+                <div class="form-group">
+                    <label>Дата рождения*</label>
+                    <input type="date" name="birth_date" 
+                        value="<%= user.birth_date ? new Date(user.birth_date).toISOString().split('T')[0] : '' %>" 
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Email*</label>
+                    <input type="email" name="email" 
+                           value="<%= user.email %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Телефон</label>
+                    <input type="tel" name="phone" 
+                           value="<%= user.phone || '' %>">
+                </div>
+
+                <div class="form-group">
+                    <label>Telegram</label>
+                    <input type="text" name="telegram" 
+                           value="<%= user.telegram || '' %>">
+                </div>
+
+                <div class="form-group">
+                    <label>Новый пароль</label>
+                    <input type="password" name="password" 
+                           placeholder="Оставьте пустым, если не меняется">
+                </div>
+
+                <button type="submit" class="btn-save">Сохранить изменения</button>
+            </form>
+
+            <a href="/users/logout" class="btn-logout">Выйти из аккаунта</a>
+        </div>
+
+        <!-- Правая колонка - мероприятия -->
+        <div class="user-events">
+            <h2>Записи на мероприятия</h2>
+            
+            <a href="/events" class="btn-register">Записаться на мероприятие</a>
+
+            <% if (events.length === 0) { %>
+                <div class="no-events">
+                    Нет активных записей на мероприятия
+                </div>
+            <% } else { %>
+                <div class="events-list">
+                    <% events.forEach(event => { %>
+                    <div class="event-card">
+                        <h3><%= event.title %></h3>
+                        <div class="event-meta">
+                            <span class="date">
+                                <%= event.event_date.toLocaleDateString('ru-RU') %>
+                            </span>
+                            <span class="location">
+                                <%= event.metro_station %>
+                            </span>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</main>
+
+<%- include('partials/footer') %>

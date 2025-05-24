@@ -1,0 +1,58 @@
+<%- include('partials/header', { 
+    title: 'О нас',
+    stylesheet: '/css/about.css'
+}) %>
+
+<main class="about-container">
+    <h1>О нашей платформе</h1>
+    
+    <% if (user) { %>
+    <div class="review-form">
+        <h2>Оставьте ваш отзыв</h2>
+        <% if (error) { %>
+            <div class="alert"><%= error %></div>
+        <% } %>
+        <form action="/about" method="POST">
+            <div class="form-group">
+                <label>Оценка:</label>
+                <select name="rating" required>
+                    <option value="5">★★★★★</option>
+                    <option value="4">★★★★☆</option>
+                    <option value="3">★★★☆☆</option>
+                    <option value="2">★★☆☆☆</option>
+                    <option value="1">★☆☆☆☆</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Текст отзыва:</label>
+                <textarea name="reviewText" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn-submit">Отправить</button>
+        </form>
+    </div>
+    <% } %>
+
+    <div class="reviews-list">
+        <h2>Отзывы пользователей</h2>
+        <% if (reviews.length > 0) { %>
+            <% reviews.forEach(review => { %>
+                <div class="review-card">
+                    <div class="review-header">
+                        <span class="rating">
+                            <% for (let i = 0; i < 5; i++) { %>
+                                <span class="star <%= i < review.rating ? 'active' : '' %>">★</span>
+                            <% } %>
+                        </span>
+                        <span class="author"><%= review.first_name %> <%= review.last_name %></span>
+                        <span class="date"><%= new Date(review.created_at).toLocaleDateString('ru-RU') %></span>
+                    </div>
+                    <p class="review-text"><%= review.review_text %></p>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <p class="no-reviews">Пока нет отзывов. Будьте первым!</p>
+        <% } %>
+    </div>
+</main>
+
+<%- include('partials/footer') %>

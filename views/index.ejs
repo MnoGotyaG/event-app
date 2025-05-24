@@ -1,0 +1,30 @@
+<!-- views/index.ejs -->
+<%- include('partials/header') %>
+
+<main>
+  <section>
+    <h1>Мероприятия для молодежи от 14 до 35 лет</h1>
+    <p>Мы предлагаем уникальные возможности для молодежи, от 14 до 35 лет. Участвуйте в наших бесплатных мероприятиях, развивайтесь, обменивайтесь опытом и находите новых друзей. С нами вы сможете раскрыть свой потенциал, а также познакомиться с людьми, разделяющими ваши интересы!</p>
+    <a href="/about" class="more-info">Подробнее о нас</a>
+  </section>
+
+  <section class="locations-gallery">
+    <h2>Наши точки</h2>
+    <% if (locations.length === 0) { %>
+      <div class="no-locations">
+        <p>Локации для выбранного города не найдены</p>
+      </div>
+    <% } else { %>
+      <div class="locations-list">
+        <% locations.forEach(loc => { %>
+          <div class="location-card">
+            <h3><%= loc.metro_station %></h3>
+            <p><%= loc.address %></p>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </section>
+</main>
+
+<%- include('partials/footer') %>

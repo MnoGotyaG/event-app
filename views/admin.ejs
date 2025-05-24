@@ -1,0 +1,580 @@
+<%- include('partials/header', { 
+    title: 'Панель управления',
+    stylesheet: '/css/admin.css',
+    admin: true
+}) %>
+<!-- Модальное окно редактирования мероприятия -->
+<div id="editEventModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('editEventModal')">&times;</span>
+        <h2>✏️ Редактировать мероприятие</h2>
+        <form id="editEventForm" action="/admin/events/update" method="POST">
+            <input type="hidden" name="eventId" id="editEventId">
+            
+            <div class="form-group">
+                <label>Название:</label>
+                <input type="text" name="title" id="editEventTitle" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Описание:</label>
+                <textarea name="description" id="editEventDescription" rows="4" required></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Дата и время:</label>
+                    <input type="datetime-local" name="event_date" id="editEventDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Макс. участников:</label>
+                    <input type="number" name="max_participants" id="editEventMaxParticipants" min="1">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Локация:</label>
+                    <select name="location_id" id="editEventLocation" required>
+                        <% locations.forEach(location => { %>
+                            <option value="<%= location.id %>">
+                                <%= location.metro_station %> (<%= location.address %>)
+                            </option>
+                        <% }) %>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-controls">
+                <button type="button" class="btn-cancel" onclick="closeModal('editEventModal')">Отмена</button>
+                <button type="submit" class="btn-save">Сохранить изменения</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования локации -->
+<div id="editLocationModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('editLocationModal')">&times;</span>
+        <h2>✏️ Редактировать локацию</h2>
+        <form id="editLocationForm" action="/admin/locations/update" method="POST">
+            <input type="hidden" name="locationId" id="editLocationId">
+            
+            <div class="form-group">
+                <label>Станция метро:</label>
+                <input type="text" name="metro_station" id="editMetroStation" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Адрес:</label>
+                <input type="text" name="address" id="editAddress" required>
+            </div>
+
+            <div class="form-controls">
+                <button type="button" class="btn-cancel" onclick="closeModal('editLocationModal')">Отмена</button>
+                <button type="submit" class="btn-save">Сохранить изменения</button>
+            </div>
+        </form>
+    </div>
+</div>
+<main class="admin-container">
+    <!-- Навигационные вкладки -->
+    <nav class="admin-tabs">
+        <a href="#users" class="tab-link active">👥 Пользователи</a>
+        <a href="#events" class="tab-link">🎉 Мероприятия</a>
+        <a href="#attendance" class="tab-link">✅ Подтверждение</a>
+        <a href="#locations" class="tab-link">📍 Локации</a>
+        <a href="#stats" class="tab-link">📊 Статистика</a>
+    </nav>
+
+    <div id="attendance" class="tab-pane">
+        <h2 class="section-title">Подтверждение посещений</h2>
+        
+        <div class="filters">
+            <select id="eventFilter">
+                <% events.forEach(event => { %>
+                    <option value="<%= event.id %>"><%= event.title %></option>
+                <% }) %>
+            </select>
+        </div>
+
+        <div class="attendance-list" id="attendanceList">
+            <!-- Список будет загружаться через AJAX -->
+        </div>
+    </div>
+
+    <!-- Содержимое вкладок -->
+    <div class="tab-content">
+        <!-- Вкладка Пользователи -->
+        <div id="users" class="tab-pane active">
+            <h2 class="section-title">Управление пользователями</h2>
+            
+            <div class="scroll-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ФИО</th>
+                            <th>Email</th>
+                            <th>Подтверждён</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.forEach(user => { %>
+                            <tr>
+                                <td><%= user.id %></td>
+                                <td><%= user.last_name %> <%= user.first_name %></td>
+                                <td><%= user.email %></td>
+                                <td><%= user.confirmed ? '✅' : '❌' %></td>
+                                <td>
+                                    <% if (!user.confirmed) { %>
+                                        <form action="/admin/confirm-user/<%= user.id %>" method="POST">
+                                            <button type="submit" class="btn-confirm">Подтвердить</button>
+                                        </form>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Вкладка Мероприятия -->
+        <div id="events" class="tab-pane">
+            <h2 class="section-title">Управление мероприятиями</h2>
+            
+            <!-- Форма создания мероприятия -->
+            <div class="form-container">
+                <button onclick="toggleEventForm()" class="btn-add">➕ Создать мероприятие</button>
+                
+                <form id="eventForm" action="/admin/events" method="POST" class="hidden-form">
+                    <div class="form-group">
+                        <label>Название:</label>
+                        <input type="text" name="title" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Описание:</label>
+                        <textarea name="description" rows="4" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Дата и время:</label>
+                            <input type="datetime-local" name="event_date" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Макс. участников:</label>
+                            <input type="number" name="max_participants" min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Локация:</label>
+                            <select name="location_id" required>
+                                <% locations.forEach(location => { %>
+                                    <option value="<%= location.id %>">
+                                        <%= location.metro_station %> (<%= location.address %>)
+                                    </option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-save">Создать</button>
+                </form>
+            </div>
+
+            <!-- Форма редактирования мероприятия -->
+            <form id="editEventForm" action="/admin/events/update" method="POST" class="hidden-form">
+                <input type="hidden" name="eventId" id="editEventId">
+                <div class="form-group">
+                    <label>Название:</label>
+                    <input type="text" name="title" id="editEventTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Описание:</label>
+                    <textarea name="description" id="editEventDescription" rows="4" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Дата и время:</label>
+                        <input type="datetime-local" name="event_date" id="editEventDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Макс. участников:</label>
+                        <input type="number" name="max_participants" id="editEventMaxParticipants" min="1">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Локация:</label>
+                        <select name="location_id" id="editEventLocation" required>
+                            <% locations.forEach(location => { %>
+                                <option value="<%= location.id %>">
+                                    <%= location.metro_station %> (<%= location.address %>)
+                                </option>
+                            <% }) %>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-controls">
+                    <button type="button" onclick="closeEditForm()" class="btn-cancel">Отмена</button>
+                    <button type="submit" class="btn-save">Сохранить</button>
+                </div>
+            </form>
+
+            <!-- Список мероприятий -->
+            <div class="scroll-container">
+                <div class="cards-grid">
+                    <% events.forEach(event => { %>
+                        <div class="event-card">
+                            <h3><%= event.title %></h3>
+                            <div class="event-details">
+                                <p>📅 <%= new Date(event.event_date).toLocaleString() %></p>
+                                <p>👥 Участников: <%= event.participants %></p>
+                                <p>📍 <%= event.address %></p>
+                            </div>
+                            <div class="event-actions">
+                                <form action="/admin/events/delete/<%= event.id %>" method="POST">
+                                    <button type="submit" class="btn-delete">Удалить</button>
+                                </form>
+                                <button 
+                                    onclick="openEditForm(
+                                        '<%= event.id %>',
+                                        '<%= event.title %>',
+                                        '<%= event.description %>',
+                                        '<%= event.event_date.toISOString().slice(0,16) %>',
+                                        '<%= event.location_id %>',
+                                        '<%= event.max_participants %>'
+                                    )" 
+                                    class="btn-edit"
+                                >
+                                    ✏️ Редактировать
+                                </button>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка Локации -->
+        <div id="locations" class="tab-pane">
+            <h2 class="section-title">Управление локациями</h2>
+            
+            <!-- Форма добавления локации -->
+            <div class="form-container">
+                <form action="/admin/locations" method="POST" class="inline-form">
+                    <div class="form-group">
+                        <label>Станция метро:</label>
+                        <input type="text" name="metro_station" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Адрес:</label>
+                        <input type="text" name="address" required>
+                    </div>
+                    <button type="submit" class="btn-add">➕ Добавить локацию</button>
+                </form>
+            </div>
+
+            <!-- Форма редактирования локации -->
+            <form id="editLocationForm" action="/admin/locations/update" method="POST" class="hidden-form">
+                <input type="hidden" name="locationId" id="editLocationId">
+                <div class="form-group">
+                    <label>Станция метро:</label>
+                    <input type="text" name="metro_station" id="editMetroStation" required>
+                </div>
+                <div class="form-group">
+                    <label>Адрес:</label>
+                    <input type="text" name="address" id="editAddress" required>
+                </div>
+                <div class="form-controls">
+                    <button type="button" onclick="closeLocationForm()" class="btn-cancel">Отмена</button>
+                    <button type="submit" class="btn-save">Сохранить</button>
+                </div>
+            </form>
+
+            <!-- Список локаций -->
+            <div class="scroll-container">
+                <div class="cards-grid">
+                    <% locations.forEach(location => { %>
+                        <div class="location-card">
+                            <div class="location-info">
+                                <h3>🚇 <%= location.metro_station %></h3>
+                                <p>📍 <%= location.address %></p>
+                            </div>
+                            <div class="location-actions">
+                                <button 
+                                    onclick="openLocationEdit(
+                                        '<%= location.id %>',
+                                        '<%= location.metro_station %>',
+                                        '<%= location.address %>'
+                                    )" 
+                                    class="btn-edit"
+                                >
+                                    ✏️ Редактировать
+                                </button>
+                                <form action="/admin/locations/delete/<%= location.id %>" method="POST">
+                                    <button type="submit" class="btn-delete">Удалить</button>
+                                </form>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка Статистика -->
+        <div id="stats" class="tab-pane">
+            <h2 class="section-title">Статистика посещений</h2>
+            <div class="stats-container">
+                <div class="stat-box">
+                    <h3>📈 Активность пользователей</h3>
+                    <% if (usersActivity.length > 0) { %>
+                        <ul class="top-list">
+                            <% usersActivity.forEach(user => { %>
+                                <li>
+                                    <span><%= user.name %></span>
+                                    <span><%= user.attended_events %>/<%= user.total_events %></span>
+                                </li>
+                            <% }) %>
+                        </ul>
+                    <% } else { %>
+                        <p class="no-data">Нет данных об активности</p>
+                    <% } %>
+                </div>
+
+                <!-- В разделе "Топ мероприятий" -->
+                <div class="stat-box">
+                    <h3>🏆 Топ мероприятий</h3>
+                    <% if (topEvents.length > 0) { %>
+                        <ul class="top-list">
+                            <% topEvents.forEach(event => { %>
+                                <li>
+                                    <span><%= event.title %></span>
+                                    <span><%= event.attended %>/<%= event.participants %></span>
+                                </li>
+                            <% }) %>
+                        </ul>
+                    <% } else { %>
+                        <p class="no-data">Нет данных о мероприятиях</p>
+                    <% } %>
+                </div>
+                <div class="stat-box">
+                  <h3>📅 Прошедшие мероприятия</h3>
+                  <% if (pastEvents.length > 0) { %>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Мероприятие</th>
+                                <th>Дата</th>
+                                <th>Участники</th>
+                                <th>Пришли</th>
+                                <th>Подтверждение</th> <!-- Новая колонка -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% events.forEach(event => { %>
+                                <tr>
+                                    <td><%= event.title %></td>
+                                    <td><%= event.event_date.toLocaleDateString() %></td>
+                                    <td><%= event.participants %></td>
+                                    <td><%= event.attended_count %></td>
+                                    <td>
+                                        <% if (event.participants > 0) { %>
+                                            
+                                                <button 
+                                                    onclick="showAttendance(<%= event.id %>)" 
+                                                    class="btn-confirm"
+                                                    <%= event.participants === 0 ? 'disabled' : '' %>
+                                                >
+                                                    ✅ Подтвердить
+                                                </button>
+                                            
+
+                                        <% } else { %>
+                                            <span class="no-data">Нет участников</span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                  <% } else { %>
+                    <p>Нет завершенных мероприятий</p>
+                  <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+
+    // Загрузка списка участников
+    document.getElementById('eventFilter').addEventListener('change', async (e) => {
+        const eventId = e.target.value;
+        const response = await fetch(`/admin/attendance/${eventId}`);
+        const data = await response.json();
+        
+        const list = document.getElementById('attendanceList');
+        list.innerHTML = data.map(user => `
+            <div class="attendance-item">
+                <input 
+                    type="checkbox" 
+                    ${user.attended ? 'checked' : ''}
+                    data-user-id="${user.id}"
+                >
+                <label>${user.last_name} ${user.first_name}</label>
+            </div>
+        `).join('');
+    });
+
+    // Сохранение изменений
+    document.getElementById('attendanceList').addEventListener('change', async (e) => {
+        const eventId = document.getElementById('eventFilter').value;
+        const checkboxes = document.querySelectorAll('#attendanceList input[type="checkbox"]');
+        const userIds = Array.from(checkboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.dataset.userId);
+
+        await fetch(`/admin/attendance/${eventId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userIds })
+        });
+    });
+
+    // Инициализация при загрузке
+    // Инициализация вкладок при загрузке
+    document.addEventListener('DOMContentLoaded', () => {
+        // Получаем хэш из URL или используем #users по умолчанию
+        const hash = window.location.hash || '#users';
+        
+        // Находим все элементы вкладок и их содержимое
+        const tabs = document.querySelectorAll('.tab-link');
+        const panes = document.querySelectorAll('.tab-pane');
+
+        // Сбрасываем активное состояние
+        tabs.forEach(tab => tab.classList.remove('active'));
+        panes.forEach(pane => pane.classList.remove('active'));
+
+        // Активируем вкладку по хэшу
+        const activeTab = document.querySelector(`.tab-link[href="${hash}"]`);
+        const activePane = document.querySelector(hash);
+
+        if (activeTab && activePane) {
+            activeTab.classList.add('active');
+            activePane.classList.add('active');
+        } else {
+            // Если хэш невалидный, активируем первую вкладку
+            tabs[0].classList.add('active');
+            panes[0].classList.add('active');
+            window.location.hash = tabs[0].getAttribute('href');
+        }
+    });
+
+    // Обработчик переключения вкладок
+    document.querySelectorAll('.tab-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href');
+            
+            // Сбрасываем активное состояние
+            document.querySelectorAll('.tab-link, .tab-pane').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Активируем выбранную вкладку
+            link.classList.add('active');
+            document.querySelector(targetId).classList.add('active');
+            
+            // Обновляем хэш в URL без перезагрузки
+            history.replaceState(null, null, targetId);
+        });
+    });
+
+    // Управление модальными окнами
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'block';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    }
+
+    // Редактирование мероприятия
+    function openEditForm(id, title, description, date, locationId, maxParticipants) {
+        document.getElementById('editEventId').value = id;
+        document.getElementById('editEventTitle').value = title;
+        document.getElementById('editEventDescription').value = description;
+        document.getElementById('editEventDate').value = date;
+        document.getElementById('editEventLocation').value = locationId;
+        document.getElementById('editEventMaxParticipants').value = maxParticipants;
+        openModal('editEventModal');
+    }
+
+    // Редактирование локации
+    function openLocationEdit(id, metro, address) {
+        document.getElementById('editLocationId').value = id;
+        document.getElementById('editMetroStation').value = metro;
+        document.getElementById('editAddress').value = address;
+        openModal('editLocationModal');
+    }
+
+    // Управление формой создания мероприятий
+    function toggleEventForm() {
+        const form = document.getElementById('eventForm');
+        form.classList.toggle('hidden-form');
+    }
+
+    // Функция для перехода на вкладку подтверждения
+    function showAttendance(eventId) {
+        // Активируем вкладку подтверждения
+        document.querySelectorAll('.tab-link, .tab-pane').forEach(el => {
+            el.classList.remove('active');
+        });
+        document.querySelector('#attendance').classList.add('active');
+        document.querySelector('a[href="#attendance"]').classList.add('active');
+        
+        // Устанавливаем выбранное мероприятие
+        document.getElementById('eventFilter').value = eventId;
+        
+        // Имитируем событие изменения select
+        document.getElementById('eventFilter').dispatchEvent(new Event('change'));
+    }
+
+    // Обновите обработчик изменения select
+    document.getElementById('eventFilter').addEventListener('change', async (e) => {
+        const eventId = e.target.value;
+        const response = await fetch(`/admin/attendance/${eventId}`);
+        if (!response.ok) return;
+        
+        const data = await response.json();
+        const list = document.getElementById('attendanceList');
+        list.innerHTML = data.map(user => `
+            <div class="attendance-item">
+                <input 
+                    type="checkbox" 
+                    ${user.attended ? 'checked' : ''}
+                    data-user-id="${user.id}"
+                >
+                <label>${user.last_name} ${user.first_name}</label>
+            </div>
+        `).join('');
+    });
+</script>
+
+<%- include('partials/footer') %>
