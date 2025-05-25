@@ -769,6 +769,35 @@
       }
     });
 
+    document.getElementById('pastEventsCityFilter').addEventListener('change', async (e) => {
+        const cityId = e.target.value;
+        // Динамическая загрузка данных с фильтром
+        const response = await fetch(`/admin/statsfilter?city_id=${cityId}`);
+        const filteredEvents = await response.json();
+        updatePastEventsTable(filteredEvents);
+    });
+
+    function updatePastEventsTable(events) {
+        const tbody = document.querySelector('#stats table tbody');
+        tbody.innerHTML = events.map(event => `
+            <tr>
+                <td>${event.title}</td>
+                <td>${new Date(event.event_date).toLocaleDateString('ru-RU')}</td>
+                <td>${event.city_name}</td>
+                <td>${event.participants}</td>
+                <td>${event.attended_count}</td>
+                <td>
+                    ${event.participants > 0 ? `
+                        <button onclick="showAttendance(${event.id})" 
+                            class="btn-confirm">
+                            ✅ Подтвердить
+                        </button>
+                    ` : '<span class="no-data">Нет участников</span>'}
+                </td>
+            </tr>
+        `).join('');
+    }
+
     // Инициализация при загрузке страницы
     window.addEventListener('DOMContentLoaded', async () => {
         const citySelect = document.getElementById('citySelect');
@@ -793,6 +822,8 @@
         });
 
     });
+
+
 </script>
 
 <%- include('partials/footer') %>

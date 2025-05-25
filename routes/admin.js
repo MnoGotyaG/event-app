@@ -481,123 +481,37 @@ router.get('/themes', isAdmin, async (req, res) => {
 // Фильтрация для статистики
 router.get('/statsfilter', isAdmin, async (req, res) => {
   try {
-    const { city: cityFilter, theme: themeFilter, period: periodFilter } = req.query;
+    const { city_id } = req.query;
+    let query = `
+      SELECT 
+      e.id,
+      e.title,
+      e.event_date,
+      c.name AS city_name,
+      COUNT(ue.user_id)::INT AS participants,
+      SUM(CASE WHEN ue.attended THEN 1 ELSE 0 END)::INT AS attended_count,
+      e.city_id -- Добавлено
+    FROM events e
+    LEFT JOIN user_events ue ON e.id = ue.event_id
+    JOIN cities c ON e.city_id = c.id
+    WHERE e.event_date < NOW() AT TIME ZONE 'UTC' + INTERVAL '3 HOUR'
+    GROUP BY e.id, c.id
+    `;
+    const params = [];
 
-    // Массивы для параметров каждого запроса
-    const pastEventsParams = [];
-    const upcomingEventsParams = [];
-    const topEventsParams = [];
-
-    // Базовые запросы
-    let pastEventsQuery = `SELECT e.*, l.name AS location_name, t.name AS theme_name, c.name AS city_name
-                           FROM events e
-                           JOIN locations l ON e.location_id = l.id
-                           JOIN themes t ON e.theme_id = t.id
-                           JOIN cities c ON l.city_id = c.id
-                           WHERE e.event_date < NOW()`;
-
-    let upcomingEventsQuery = `SELECT e.*, l.name AS location_name, t.name AS theme_name, c.name AS city_name
-                               FROM events e
-                               JOIN locations l ON e.location_id = l.id
-                               JOIN themes t ON e.theme_id = t.id
-                               JOIN cities c ON l.city_id = c.id
-                               WHERE e.event_date >= NOW()`; // Для будущих событий обычно >= NOW()
-
-    let topEventsQuery = `SELECT e.*, COUNT(ue.user_id) AS participants_count, l.name AS location_name, t.name AS theme_name, c.name AS city_name
-                          FROM events e
-                          LEFT JOIN user_events ue ON e.id = ue.event_id
-                          JOIN locations l ON e.location_id = l.id
-                          JOIN themes t ON e.theme_id = t.id
-                          JOIN cities c ON l.city_id = c.id
-                          GROUP BY e.id, l.name, t.name, c.name
-                          ORDER BY participants_count DESC`;
-
-
-    let paramIndexPast = 1;
-    let paramIndexUpcoming = 1;
-    let paramIndexTop = 1;
-
-    // ОБРАБОТКА ФИЛЬТРА ГОРОДА
-    if (cityFilter && cityFilter !== 'all') {
-      const cityId = parseInt(cityFilter, 10); // Преобразуем в число
-      if (!isNaN(cityId)) { // Убедимся, что это валидный ID
-        pastEventsQuery += ` AND c.id = $${paramIndexPast}`;
-        pastEventsParams.push(cityId);
-        paramIndexPast++;
-
-        upcomingEventsQuery += ` AND c.id = $${paramIndexUpcoming}`;
-        upcomingEventsParams.push(cityId);
-        paramIndexUpcoming++;
-
-        topEventsQuery += ` AND c.id = $${paramIndexTop}`;
-        topEventsParams.push(cityId);
-        paramIndexTop++;
-      }
+    if (city_id && city_id !== 'Все города') {
+      query += ' AND e.city_id = $1';
+      params.push(city_id);
     }
 
-    // ОБРАБОТКА ФИЛЬТРА ТЕМЫ (если есть)
-    if (themeFilter && themeFilter !== 'all') {
-      const themeId = parseInt(themeFilter, 10);
-      if (!isNaN(themeId)) {
-        pastEventsQuery += ` AND t.id = $${paramIndexPast}`;
-        pastEventsParams.push(themeId);
-        paramIndexPast++;
+    query += ' GROUP BY e.id, c.name ORDER BY e.event_date DESC';
 
-        upcomingEventsQuery += ` AND t.id = $${paramIndexUpcoming}`;
-        upcomingEventsParams.push(themeId);
-        paramIndexUpcoming++;
+    const result = await db.query(query, params);
 
-        topEventsQuery += ` AND t.id = $${paramIndexTop}`;
-        topEventsParams.push(themeId);
-        paramIndexTop++;
-      }
-    }
-
-    // ОБРАБОТКА ФИЛЬТРА ПЕРИОДА (если есть)
-    // Эта логика может быть сложнее, в зависимости от того, что означает 'periodFilter'
-    // Например, если 'periodFilter' это 'last_week', 'last_month', 'last_year'
-    if (periodFilter && periodFilter !== 'all') {
-        const now = new Date();
-        let startDate;
-
-        if (periodFilter === 'last_week') {
-            startDate = new Date(now.setDate(now.getDate() - 7));
-        } else if (periodFilter === 'last_month') {
-            startDate = new Date(now.setMonth(now.getMonth() - 1));
-        } else if (periodFilter === 'last_year') {
-            startDate = new Date(now.setFullYear(now.getFullYear() - 1));
-        }
-
-        if (startDate) {
-            pastEventsQuery += ` AND e.event_date >= $${paramIndexPast}`;
-            pastEventsParams.push(startDate);
-            paramIndexPast++;
-
-            upcomingEventsQuery += ` AND e.event_date >= $${paramIndexUpcoming}`;
-            upcomingEventsParams.push(startDate);
-            paramIndexUpcoming++;
-
-            topEventsQuery += ` AND e.event_date >= $${paramIndexTop}`;
-            topEventsParams.push(startDate);
-            paramIndexTop++;
-        }
-    }
-
-
-    // Выполнение запросов с параметрами
-    const [pastEvents, upcomingEvents, topEvents, themes, cities] = await Promise.all([
-      db.query(pastEventsQuery, pastEventsParams),
-      db.query(upcomingEventsQuery, upcomingEventsParams),
-      db.query(topEventsQuery, topEventsParams),
-      db.query('SELECT * FROM themes ORDER BY name ASC'),
-      db.query('SELECT * FROM cities ORDER BY name ASC')
-    ]);
-
-    // ... (остальной код, рендер страницы) ...
-
+    res.json(result.rows);
   } catch (err) {
-    console.error('Ошибка при фильтрации данных:', err);
-    res.status(500).send('Ошибка при получении отфильтрованных данных.');
+    console.error(err);
+    res.status(500).json({ error: 'Ошибка сервера' });
   }
 });
 
