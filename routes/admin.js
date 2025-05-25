@@ -180,7 +180,7 @@ router.get('/dashboard', isAdmin, async (req, res) => {
       admin: req.session.admin,
       usersActivity: usersActivity.rows,
       topEvents: topEvents.rows,
-      themes: themes.rows
+      themes: themes.rows,
       cities: cities.rows
     });
 
