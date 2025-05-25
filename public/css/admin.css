@@ -195,10 +195,22 @@ input, textarea, select, label {
 }
 
 /* Специфичные стили для локаций */
+/* Обновим стили для карточек локаций */
 .location-card {
-  color: #000; /* Чёрный цвет текста */
+  min-height: 180px; /* Фиксированная минимальная высота */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
+.location-info {
+  flex-grow: 1;
+}
+
+.location-actions {
+  margin-top: auto; /* Прижимаем кнопки к низу */
+  padding-top: 15px;
+}
 .event-card h3 {
   font-size: 1rem;  /* Было примерно 1.5rem по умолчанию */
   margin-bottom: 0.5rem;

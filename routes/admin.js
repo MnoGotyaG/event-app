@@ -109,7 +109,12 @@ router.get('/dashboard', isAdmin, async (req, res) => {
         GROUP BY e.id, l.metro_station, l.address
         ORDER BY e.event_date DESC
       `),
-      db.query('SELECT * FROM locations ORDER BY metro_station'),
+      db.query(`
+        SELECT l.*, c.name as city_name 
+        FROM locations l
+        JOIN cities c ON l.city_id = c.id
+        ORDER BY l.metro_station
+      `),
       db.query('SELECT * FROM themes ORDER BY name'),
       db.query('SELECT * FROM cities ORDER BY name'),
       db.query(`

@@ -270,6 +270,7 @@
                             <div class="event-details">
                                 <p>📅 <%= new Date(event.event_date).toLocaleString() %></p>
                                 <p>👥 Участников: <%= event.participants %></p>
+                                <p class="city-tag">🏙️ <%= event.city_name %></p>
                                 <p>📍 <%= event.address %></p>
                             </div>
                             <div class="event-actions">
@@ -644,44 +645,81 @@
 
     // Общая функция для фильтрации
     async function applyFilter(filterElement, endpoint, containerId) {
-        const cityId = filterElement.value;
-        const response = await fetch(`/admin/${endpoint}?city_id=${cityId}`);
-        const data = await response.json();
-        const container = document.getElementById(containerId);
-        
-        // Шаблон для мероприятий
-        if(containerId === 'eventsContainer') {
-            container.innerHTML = data.map(event => `
-                <div class="event-card">
-                    <h3>${event.title}</h3>
-                    <div class="event-details">
-                        <p>📅 ${new Date(event.event_date).toLocaleString()}</p>
-                        <p>👥 Участников: ${event.participants}</p>
-                        <p>🏙️ ${event.city_name}</p>
-                        <p>📍 ${event.address}</p>
+        try {
+            const cityId = filterElement.value;
+            const response = await fetch(`/admin/${endpoint}?city_id=${cityId}`);
+            if (!response.ok) throw new Error('Ошибка загрузки данных');
+            
+            const data = await response.json();
+            const container = document.getElementById(containerId);
+            
+            if (!container) return;
+
+            const templates = {
+                eventsContainer: (event) => `
+                    <div class="event-card">
+                        <h3>${event.title}</h3>
+                        <div class="event-details">
+                            <p>📅 ${new Date(event.event_date).toLocaleString('ru-RU')}</p>
+                            <p>👥 Участников: ${event.participants || 0}</p>
+                            <p>🏙️ ${event.city_name}</p>
+                            <p>📍 ${event.address}</p>
+                        </div>
+                        <div class="event-actions">
+                            <form action="/admin/events/delete/${event.id}" method="POST">
+                                <button type="submit" class="btn-delete">Удалить</button>
+                            </form>
+                            <button class="btn-edit" 
+                                onclick="openEditForm(
+                                    '${event.id}',
+                                    '${event.title.replace(/'/g, "\\'")}',
+                                    '${event.description.replace(/'/g, "\\'")}',
+                                    '${new Date(event.event_date).toISOString().slice(0, 16)}',
+                                    '${event.location_id}',
+                                    '${event.max_participants}'
+                                )">
+                                ✏️ Редактировать
+                            </button>
+                        </div>
                     </div>
-                    <div class="event-actions">
-                        <!-- ... кнопки действий ... -->
+                `,
+                
+                locationsContainer: (location) => `
+                    <div class="location-card">
+                        <div class="location-info">
+                            <h3>🚇 ${location.metro_station}</h3>
+                            <p>📍 ${location.address}</p>
+                            <p>🏙️ ${location.city_name}</p>
+                        </div>
+                        <div class="location-actions">
+                            <button class="btn-edit" 
+                                onclick="openLocationEdit(
+                                    '${location.id}',
+                                    '${location.metro_station.replace(/'/g, "\\'")}',
+                                    '${location.address.replace(/'/g, "\\'")}'
+                                )">
+                                ✏️ Редактировать
+                            </button>
+                            <form action="/admin/locations/delete/${location.id}" method="POST">
+                                <button type="submit" class="btn-delete">Удалить</button>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            `).join('');
-        }
-        
-        // Шаблон для локаций
-        if(containerId === 'locationsContainer') {
-            container.innerHTML = data.map(location => `
-                <div class="location-card">
-                    <div class="location-info">
-                        <h3>🚇 ${location.metro_station}</h3>
-                        <p>📍 ${location.address}</p>
-                        <p>🏙️ ${location.city_name}</p>
-                    </div>
-                    <!-- ... кнопки действий ... -->
-                </div>
-            `).join('');
+                `
+            };
+
+            container.innerHTML = data.length > 0 
+                ? data.map(templates[containerId]).join('') 
+                : '<p class="no-data">Нет данных для отображения</p>';
+
+        } catch (error) {
+            console.error('Ошибка фильтрации:', error);
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML = '<p class="error">Ошибка загрузки данных</p>';
+            }
         }
     }
-
 
     // Инициализация при загрузке страницы
     window.addEventListener('DOMContentLoaded', async () => {
