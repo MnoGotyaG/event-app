@@ -136,7 +136,6 @@ router.get('/dashboard', isAdmin, async (req, res) => {
         e.id,
         e.title,
         e.event_date,
-        e.city_id,  // Добавляем city_id
         c.name as city_name,
         COUNT(ue.user_id)::int as participants,
         COALESCE(SUM(ue.attended::int), 0) as attended_count
@@ -144,7 +143,7 @@ router.get('/dashboard', isAdmin, async (req, res) => {
       LEFT JOIN user_events ue ON e.id = ue.event_id
       JOIN cities c ON e.city_id = c.id
       WHERE e.event_date < NOW()
-      GROUP BY e.id, c.id, e.title, e.event_date, e.city_id  // Расширяем GROUP BY
+      GROUP BY e.id, c.name
       ORDER BY e.event_date DESC
     `);
     // Активность пользователей (usersActivity)
