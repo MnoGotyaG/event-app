@@ -484,18 +484,16 @@ router.get('/statsfilter', isAdmin, async (req, res) => {
     const { city_id } = req.query;
     let query = `
       SELECT 
-      e.id,
-      e.title,
-      e.event_date,
-      c.name AS city_name,
-      COUNT(ue.user_id)::INT AS participants,
-      SUM(CASE WHEN ue.attended THEN 1 ELSE 0 END)::INT AS attended_count,
-      e.city_id -- Добавлено
-    FROM events e
-    LEFT JOIN user_events ue ON e.id = ue.event_id
-    JOIN cities c ON e.city_id = c.id
-    WHERE e.event_date < NOW() AT TIME ZONE 'UTC' + INTERVAL '3 HOUR'
-    GROUP BY e.id, c.id
+        e.id,
+        e.title,
+        e.event_date,
+        c.name AS city_name,
+        COUNT(ue.user_id)::INT AS participants,
+        SUM(CASE WHEN ue.attended THEN 1 ELSE 0 END)::INT AS attended_count
+      FROM events e
+      LEFT JOIN user_events ue ON e.id = ue.event_id
+      JOIN cities c ON e.city_id = c.id
+      WHERE e.event_date < NOW() AT TIME ZONE 'UTC' + INTERVAL '3 HOUR'
     `;
     const params = [];
 
@@ -504,10 +502,10 @@ router.get('/statsfilter', isAdmin, async (req, res) => {
       params.push(city_id);
     }
 
-    query += ' GROUP BY e.id, c.name ORDER BY e.event_date DESC';
+    // Исправлено: добавлены все неагрегированные столбцы в GROUP BY
+    query += ' GROUP BY e.id, c.id, c.name ORDER BY e.event_date DESC';
 
     const result = await db.query(query, params);
-
     res.json(result.rows);
   } catch (err) {
     console.error(err);
