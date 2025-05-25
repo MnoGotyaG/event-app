@@ -94,7 +94,7 @@ router.get('/users', async (req, res) => {
 // Главная админ-панель
 router.get('/dashboard', isAdmin, async (req, res) => {
   try {
-    const [users, events, locations] = await Promise.all([
+    const [users, events, locations, themes] = await Promise.all([
       db.query('SELECT * FROM users ORDER BY created_at DESC'),
       db.query(`
         SELECT 
@@ -110,6 +110,7 @@ router.get('/dashboard', isAdmin, async (req, res) => {
         ORDER BY e.event_date DESC
       `),
       db.query('SELECT * FROM locations ORDER BY metro_station'),
+      db.query('SELECT * FROM event_themes ORDER BY name'),
       db.query(`
         SELECT 
           e.title,
@@ -178,6 +179,7 @@ router.get('/dashboard', isAdmin, async (req, res) => {
       admin: req.session.admin,
       usersActivity: usersActivity.rows,
       topEvents: topEvents.rows
+      themes: themes.rows
     });
 
   } catch (err) {
@@ -203,24 +205,23 @@ router.post('/events', isAdmin, async (req, res) => {
     try {
         const { title, description, event_date, city_id, street_id, theme_id, max_participants } = req.body;
         
-        // Создаем или находим локацию
-        const locationResult = await db.query(
-            `INSERT INTO locations (street_id) 
-            VALUES ($1) 
-            RETURNING id`,
-            [street_id]
+        // Создаем новую локацию
+        const locationRes = await db.query(
+            `INSERT INTO locations (city_id, street_id)
+             VALUES ($1, $2)
+             RETURNING id`,
+            [city_id, street_id]
         );
-        
+
         await db.query(
             `INSERT INTO events 
-            (title, description, event_date, location_id, city_id, theme_id, max_participants)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+            (title, description, event_date, location_id, theme_id, max_participants)
+            VALUES ($1, $2, $3, $4, $5, $6)`,
             [
                 title, 
                 description, 
                 event_date, 
-                locationResult.rows[0].id, 
-                city_id, 
+                locationRes.rows[0].id, 
                 theme_id, 
                 max_participants
             ]
@@ -232,7 +233,6 @@ router.post('/events', isAdmin, async (req, res) => {
         res.status(500).render('error', { message: 'Ошибка создания мероприятия' });
     }
 });
-
 // Удаление мероприятия
 router.post('/events/delete/:eventId', isAdmin, async (req, res) => {
   try {
