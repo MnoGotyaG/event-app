@@ -135,15 +135,15 @@ router.get('/dashboard', isAdmin, async (req, res) => {
       SELECT 
         e.id,
         e.title,
-        e.event_date,
+        e.event_date AT TIME ZONE 'UTC' as event_date,
         c.name as city_name,
         COUNT(ue.user_id)::int as participants,
         SUM(CASE WHEN ue.attended THEN 1 ELSE 0 END)::int as attended_count
       FROM events e
       LEFT JOIN user_events ue ON e.id = ue.event_id
       JOIN cities c ON e.city_id = c.id
-      WHERE e.event_date < NOW() AT TIME ZONE 'UTC'
-      GROUP BY e.id, c.name, e.title, e.event_date  
+      WHERE e.event_date < NOW()
+      GROUP BY e.id, c.id, e.title, e.event_date
       ORDER BY e.event_date DESC
     `);
     // Активность пользователей (usersActivity)
