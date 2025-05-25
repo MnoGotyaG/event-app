@@ -770,11 +770,32 @@
     });
 
     document.getElementById('pastEventsCityFilter').addEventListener('change', async (e) => {
-        const cityId = e.target.value;
-        // Динамическая загрузка данных с фильтром
-        const response = await fetch(`/admin/statsfilter?city_id=${cityId}`);
-        const filteredEvents = await response.json();
-        updatePastEventsTable(filteredEvents);
+        try {
+            const cityId = e.target.value;
+            const response = await fetch(`/admin/statsfilter?city_id=${cityId}`);
+            const data = await response.json();
+            
+            const tbody = document.querySelector('#stats table tbody');
+            tbody.innerHTML = data.map(event => `
+                <tr data-city-id="${event.city_id}">
+                    <td>${event.title}</td>
+                    <td>${new Date(event.event_date).toLocaleDateString('ru-RU')}</td>
+                    <td>${event.city_name}</td>
+                    <td>${event.participants}</td>
+                    <td>${event.attended_count}</td>
+                    <td>
+                        ${event.participants > 0 ? `
+                            <button onclick="showAttendance(${event.id})" 
+                                class="btn-confirm">
+                                ✅ Подтвердить
+                            </button>
+                        ` : '<span class="no-data">Нет участников</span>'}
+                    </td>
+                </tr>
+            `).join('');
+        } catch (error) {
+            console.error('Ошибка фильтрации:', error);
+        }
     });
 
     function updatePastEventsTable(events) {

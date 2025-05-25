@@ -502,10 +502,14 @@ router.get('/statsfilter', isAdmin, async (req, res) => {
       params.push(city_id);
     }
 
+    // Исправленная секция GROUP BY
     query += `
-      GROUP BY e.id, c.id, e.title, e.event_date, c.name 
+      GROUP BY e.id, c.id, e.title, e.event_date, c.name
       ORDER BY e.event_date DESC
     `;
+
+    // Логирование запроса для отладки
+    console.log('SQL Query:', query, 'Params:', params);
 
     const result = await db.query(query, params);
     res.json(result.rows);
