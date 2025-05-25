@@ -142,10 +142,11 @@ router.get('/dashboard', isAdmin, async (req, res) => {
       FROM events e
       LEFT JOIN user_events ue ON e.id = ue.event_id
       JOIN cities c ON e.city_id = c.id
-      WHERE e.event_date < NOW() AT TIME ZONE 'UTC'
+      WHERE e.event_date < NOW() AT TIME ZONE 'UTC' + INTERVAL '3 HOUR' -- Для московского времени
       GROUP BY e.id, c.id
       ORDER BY e.event_date DESC
     `);
+    
     // Активность пользователей (usersActivity)
     const usersActivity = await db.query(`
         SELECT 
