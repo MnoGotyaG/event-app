@@ -441,6 +441,7 @@
                                 <tr>
                                     <th>Мероприятие</th>
                                     <th>Дата</th>
+                                    <th>Город</th>
                                     <th>Участники</th>
                                     <th>Пришли</th>
                                     <th>Подтверждение</th>
@@ -450,7 +451,8 @@
                                 <% pastEvents.forEach(event => { %>
                                     <tr data-city-id="<%= event.city_id %>">
                                         <td><%= event.title %></td>
-                                        <td><%= new Date(event.event_date).toLocaleDateString('ru-RU') %></td>
+                                        <td><%= new Date(event.event_date).toISOString().slice(0,16).replace('T',' ') %></td>
+                                        <td><%= event.city_name %></td>
                                         <td><%= event.participants %></td>
                                         <td><%= event.attended_count %></td>
                                         <td>
