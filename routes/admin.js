@@ -502,13 +502,15 @@ router.get('/statsfilter', isAdmin, async (req, res) => {
       params.push(city_id);
     }
 
-    // Исправлено: добавлены все неагрегированные столбцы в GROUP BY
-    query += ' GROUP BY e.id, c.id, c.name ORDER BY e.event_date DESC';
+    query += `
+      GROUP BY e.id, c.id, e.title, e.event_date, c.name 
+      ORDER BY e.event_date DESC
+    `;
 
     const result = await db.query(query, params);
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
+    console.error('Ошибка в /statsfilter:', err);
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 });
