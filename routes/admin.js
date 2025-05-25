@@ -133,17 +133,19 @@ router.get('/dashboard', isAdmin, async (req, res) => {
 
     const pastEvents = await db.query(`
       SELECT 
-          e.id,
-          e.title,
-          e.event_date,
-          COUNT(ue.user_id)::int as participants,
-          SUM(CASE WHEN ue.attended THEN 1 ELSE 0 END)::int as attended_count
+        e.id,
+        e.title,
+        e.event_date,
+        c.name as city_name,
+        COUNT(ue.user_id)::int as participants,
+        SUM(CASE WHEN ue.attended THEN 1 ELSE 0 END)::int as attended_count
       FROM events e
       LEFT JOIN user_events ue ON e.id = ue.event_id
+      JOIN cities c ON e.city_id = c.id
       WHERE e.event_date < NOW()
-      GROUP BY e.id
+      GROUP BY e.id, c.name
       ORDER BY e.event_date DESC
-  `);
+    `);
 
     // Активность пользователей (usersActivity)
     const usersActivity = await db.query(`
@@ -473,6 +475,42 @@ router.get('/themes', isAdmin, async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+});
+
+
+// Фильтрация для статистики
+router.get('/stats/filter', isAdmin, async (req, res) => {
+  try {
+    const { city_id } = req.query;
+    
+    let query = `
+      SELECT 
+        e.id,
+        e.title,
+        e.event_date,
+        c.name as city_name,
+        COUNT(ue.user_id)::int as participants,
+        SUM(CASE WHEN ue.attended THEN 1 ELSE 0 END)::int as attended_count
+      FROM events e
+      LEFT JOIN user_events ue ON e.id = ue.event_id
+      JOIN cities c ON e.city_id = c.id
+      WHERE e.event_date < NOW
+    `;
+
+    const params = [];
+    if (city_id) {
+      query += ' AND e.city_id = $1';
+      params.push(city_id);
+    }
+
+    query += ` GROUP BY e.id, c.name ORDER BY e.event_date DESC`;
+
+    const result = await db.query(query, params);
+    res.json(result.rows);
+    
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;

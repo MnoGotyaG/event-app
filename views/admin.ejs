@@ -421,29 +421,40 @@
                         <p class="no-data">Нет данных о мероприятиях</p>
                     <% } %>
                 </div>
+
                 <div class="stat-box">
-                  <h3>📅 Прошедшие мероприятия</h3>
-                  <% if (pastEvents.length > 0) { %>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Мероприятие</th>
-                                <th>Дата</th>
-                                <th>Участники</th>
-                                <th>Пришли</th>
-                                <th>Подтверждение</th> <!-- Новая колонка -->
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% events.forEach(event => { %>
+                    <h3>📅 Прошедшие мероприятия</h3>
+                    
+                    <!-- Добавляем фильтр по городам -->
+                    <div class="filters">
+                        <select id="pastEventsCityFilter">
+                            <option value="">Все города</option>
+                            <% cities.forEach(city => { %>
+                                <option value="<%= city.id %>"><%= city.name %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <% if (pastEvents.length > 0) { %>
+                        <table class="data-table">
+                            <thead>
                                 <tr>
-                                    <td><%= event.title %></td>
-                                    <td><%= event.event_date.toLocaleDateString() %></td>
-                                    <td><%= event.participants %></td>
-                                    <td><%= event.attended_count %></td>
-                                    <td>
-                                        <% if (event.participants > 0) { %>
-                                            
+                                    <th>Мероприятие</th>
+                                    <th>Дата</th>
+                                    <th>Участники</th>
+                                    <th>Пришли</th>
+                                    <th>Подтверждение</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pastEventsBody">
+                                <% pastEvents.forEach(event => { %>
+                                    <tr data-city-id="<%= event.city_id %>">
+                                        <td><%= event.title %></td>
+                                        <td><%= new Date(event.event_date).toLocaleDateString('ru-RU') %></td>
+                                        <td><%= event.participants %></td>
+                                        <td><%= event.attended_count %></td>
+                                        <td>
+                                            <% if (event.participants > 0) { %>
                                                 <button 
                                                     onclick="showAttendance(<%= event.id %>)" 
                                                     class="btn-confirm"
@@ -451,20 +462,19 @@
                                                 >
                                                     ✅ Подтвердить
                                                 </button>
-                                            
-
-                                        <% } else { %>
-                                            <span class="no-data">Нет участников</span>
-                                        <% } %>
-                                    </td>
-                                </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                  <% } else { %>
-                    <p>Нет завершенных мероприятий</p>
-                  <% } %>
+                                            <% } else { %>
+                                                <span class="no-data">Нет участников</span>
+                                            <% } %>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    <% } else { %>
+                        <p class="no-data">Нет завершенных мероприятий</p>
+                    <% } %>
                 </div>
+                
             </div>
         </div>
     </div>
@@ -723,6 +733,40 @@
             }
         }
     }
+
+    // Обработчик фильтрации для статистики
+    document.getElementById('statsCityFilter')?.addEventListener('change', async (e) => {
+      try {
+        const cityId = e.target.value;
+        const response = await fetch(`/admin/stats/filter?city_id=${cityId}`);
+        const data = await response.json();
+        
+        const tbody = document.querySelector('#stats .data-table tbody');
+        if (!tbody) return;
+
+        tbody.innerHTML = data.map(event => `
+          <tr>
+            <td>${event.title}</td>
+            <td>${new Date(event.event_date).toLocaleDateString('ru-RU')}</td>
+            <td>${event.participants}</td>
+            <td>${event.attended_count}</td>
+            <td>
+              ${event.participants > 0 ? `
+                <button 
+                  onclick="showAttendance(${event.id})" 
+                  class="btn-confirm"
+                  ${event.participants === 0 ? 'disabled' : ''}>
+                  ✅ Подтвердить
+                </button>
+              ` : '<span class="no-data">Нет участников</span>'}
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (error) {
+        console.error('Ошибка фильтрации:', error);
+      }
+    });
 
     // Инициализация при загрузке страницы
     window.addEventListener('DOMContentLoaded', async () => {
