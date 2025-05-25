@@ -436,45 +436,44 @@
                     </div>
 
                     <% if (pastEvents.length > 0) { %>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Мероприятие</th>
-                                    <th>Дата</th>
-                                    <th>Город</th>
-                                    <th>Участники</th>
-                                    <th>Пришли</th>
-                                    <th>Подтверждение</th>
-                                </tr>
-                            </thead>
-                            <tbody id="pastEventsBody">
-                                <% pastEvents.forEach(event => { %>
-                                    <tr data-city-id="<%= event.city_id %>">
-                                        <td><%= event.title %></td>
-                                        <td><%= new Date(event.event_date).toISOString().slice(0,16).replace('T',' ') %></td>
-                                        <td><%= event.city_name %></td>
-                                        <td><%= event.participants %></td>
-                                        <td><%= event.attended_count %></td>
-                                        <td>
-                                            <% if (event.participants > 0) { %>
-                                                <button 
-                                                    onclick="showAttendance(<%= event.id %>)" 
-                                                    class="btn-confirm"
-                                                    <%= event.participants === 0 ? 'disabled' : '' %>
-                                                >
-                                                    ✅ Подтвердить
-                                                </button>
-                                            <% } else { %>
-                                                <span class="no-data">Нет участников</span>
-                                            <% } %>
-                                        </td>
-                                    </tr>
-                                <% }) %>
-                            </tbody>
-                        </table>
+                      <table class="data-table">
+                        <thead>
+                          <tr>
+                            <th>Мероприятие</th>
+                            <th>Дата</th>
+                            <th>Город</th>
+                            <th>Участники</th>
+                            <th>Пришли</th>
+                            <th>Подтверждение</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% pastEvents.forEach(event => { %>
+                            <tr data-city-id="<%= event.city_id %>">
+                              <td><%= event.title %></td>
+                              <td><%= new Date(event.event_date).toLocaleString('ru-RU', {timeZone: 'UTC'}) %></td>
+                              <td><%= event.city_name %></td>
+                              <td><%= event.participants %></td>
+                              <td><%= event.attended_count %></td>
+                              <td>
+                                <% if (event.participants > 0) { %>
+                                  <button onclick="showAttendance(<%= event.id %>)" 
+                                    class="btn-confirm"
+                                    <%= event.participants === 0 ? 'disabled' : '' %>>
+                                    ✅ Подтвердить
+                                  </button>
+                                <% } else { %>
+                                  <span class="no-data">Нет участников</span>
+                                <% } %>
+                              </td>
+                            </tr>
+                          <% }) %>
+                        </tbody>
+                      </table>
                     <% } else { %>
-                        <p class="no-data">Нет завершенных мероприятий</p>
+                      <p class="no-data">Нет завершенных мероприятий</p>
                     <% } %>
+
                 </div>
                 
             </div>
