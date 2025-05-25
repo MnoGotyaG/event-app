@@ -94,7 +94,7 @@ router.post('/register', validateRegistration, async (req, res) => {
       lastName: user.last_name,
       email: user.email
     };
-    res.redirect('/profile');
+    res.redirect('/users/profile');
   } catch (err) {
     console.error(err);
     if (err.code === '23505') {
