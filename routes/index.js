@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
         // Получаем локации для выбранного города
         const locationsQuery = selectedCityId 
             ? 'SELECT * FROM locations WHERE city_id = $1'
-            : 'SELECT * FROM locations';
+            : 'SELECT * FROM locations ORDER BY id';
             
         const locations = await db.query(
             locationsQuery, 
