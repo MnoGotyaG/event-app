@@ -248,18 +248,20 @@ router.post('/events/delete/:eventId', isAdmin, async (req, res) => {
 });
 
 // Добавление локации
-router.post('/locations', isAdmin, async (req, res) => {
-  try {
-    const { metro_station, address } = req.body;
-    await db.query(
-      'INSERT INTO locations (metro_station, address) VALUES ($1, $2)',
-      [metro_station, address]
-    );
-    res.redirect('/admin/dashboard#locations');
-  } catch (err) {
-    console.error('Ошибка добавления локации:', err);
-    res.status(500).render('error', { message: 'Ошибка добавления локации' });
-  }
+router.get('/locations', isAdmin, async (req, res) => {
+    try {
+        const { city_id } = req.query;
+        const query = city_id 
+            ? 'SELECT * FROM locations WHERE city_id = $1 ORDER BY metro_station'
+            : 'SELECT * FROM locations ORDER BY metro_station';
+        
+        const values = city_id ? [city_id] : [];
+        const result = await db.query(query, values);
+        
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Удаление локации

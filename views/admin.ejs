@@ -187,9 +187,13 @@
                         </div>
                         
                         <div class="form-group">
-                            <label>Улица:</label>
-                            <select name="street_id" id="streetSelect" required>
-                                <!-- Streets will be populated via AJAX -->
+                            <label>Локация:</label>
+                            <select name="location_id" id="locationSelect" required>
+                                <% locations.forEach(location => { %>
+                                    <option value="<%= location.id %>">
+                                        <%= location.metro_station %> (<%= location.address %>)
+                                    </option>
+                                <% }) %>
                             </select>
                         </div>
                     </div>
@@ -594,26 +598,31 @@
     });
 
      // Динамическая загрузка улиц при изменении города
+    // Динамическая загрузка локаций при изменении города
     document.getElementById('citySelect').addEventListener('change', async function(e) {
         const cityId = e.target.value;
-        const response = await fetch(`/admin/streets?city_id=${cityId}`);
-        const streets = await response.json();
-        const streetSelect = document.getElementById('streetSelect');
+        const response = await fetch(`/admin/locations?city_id=${cityId}`);
+        const locations = await response.json();
+        const locationSelect = document.getElementById('locationSelect');
         
-        streetSelect.innerHTML = streets.map(street => 
-            `<option value="${street.id}">${street.name}</option>`
+        locationSelect.innerHTML = locations.map(location => 
+            `<option value="${location.id}">
+                ${location.metro_station} (${location.address})
+            </option>`
         ).join('');
     });
 
-    // Инициализация улиц при загрузке страницы
+    // Инициализация при загрузке страницы
     window.addEventListener('DOMContentLoaded', async () => {
         const citySelect = document.getElementById('citySelect');
         if (citySelect.value) {
-            const response = await fetch(`/admin/streets?city_id=${citySelect.value}`);
-            const streets = await response.json();
-            const streetSelect = document.getElementById('streetSelect');
-            streetSelect.innerHTML = streets.map(street => 
-                `<option value="${street.id}">${street.name}</option>`
+            const response = await fetch(`/admin/locations?city_id=${citySelect.value}`);
+            const locations = await response.json();
+            const locationSelect = document.getElementById('locationSelect');
+            locationSelect.innerHTML = locations.map(location => 
+                `<option value="${location.id}">
+                    ${location.metro_station} (${location.address})
+                </option>`
             ).join('');
         }
     });
