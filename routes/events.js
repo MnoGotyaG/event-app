@@ -6,7 +6,7 @@ const db = require('../db');
 router.get('/', async (req, res) => {
   try {
     const today = new Date();
-    const twoWeeksLater = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const twoWeeksLater = new Date(today.getTime() + 21 * 24 * 60 * 60 * 1000);
     const { location: queryLocation, theme: queryTheme, city: queryCity } = req.query;
     const selectedCityId = req.session.city_id;
 
