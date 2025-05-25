@@ -68,7 +68,7 @@ router.post('/login', async (req, res) => {
 // Выход администратора
 router.get('/logout', (req, res) => {
   req.session.destroy(() => {
-    res.redirect('/admin/login');
+    res.redirect('/');
   });
 });
 
