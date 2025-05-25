@@ -501,12 +501,20 @@ input, textarea, select, label {
     font-weight: bold;
 }*/
 
-.data-table td:nth-child(4) { /* 4-я колонка (email) */
+.data-table td:nth-child(4) {
   text-align: center !important;
+  padding: 0 10px !important;
   color: #333 !important;
-  padding: 0 15px;
+  position: relative; /* Для точного позиционирования */
+  left: -5px; /* Компенсация смещения */
 }
 
+/* Если email обёрнут в ссылку */
+.data-table td:nth-child(4) a {
+  display: block;
+  width: 100%;
+  text-align: inherit !important;
+}
 .data-table td:nth-child(4) { /* Для колонки с датой */
   min-width: 120px;
   text-align: center;
