@@ -218,3 +218,110 @@ footer .footer-center {
 .city-selector select:hover {
     border-color: #3498db;
 }
+
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+  /* Header */
+  header {
+    padding: 10px 0;
+    position: relative;
+  }
+
+  header nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 0 15px;
+  }
+
+  .city-selector {
+    order: 1;
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  .city-selector select {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .nav-links {
+    display: none;
+    width: 100%;
+    order: 3;
+    flex-direction: column;
+    background: #d35400;
+    margin-top: 10px;
+    padding: 10px;
+  }
+
+  .nav-links a {
+    margin: 8px 0;
+    font-size: 16px;
+  }
+
+  .burger-menu {
+    display: block;
+    order: 2;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  /* Активное состояние меню */
+  .nav-active {
+    display: flex;
+  }
+
+  /* Footer */
+  footer {
+    flex-direction: column;
+    padding: 20px;
+    text-align: center;
+  }
+
+  footer .footer-left,
+  footer .footer-right {
+    width: 100%;
+    text-align: center;
+    margin: 10px 0;
+  }
+
+  footer .footer-left p,
+  footer .footer-text {
+    font-size: 12px;
+  }
+
+  footer .contact-info {
+    margin: 15px 0;
+  }
+
+  footer .social-links {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  footer .footer-center {
+    margin-top: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  header nav a {
+    font-size: 16px;
+  }
+
+  p {
+    font-size: 18px;
+    padding: 0 10px;
+  }
+
+  .location-card {
+    width: 100%;
+    margin: 10px 0;
+  }
+}

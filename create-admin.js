@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const db = require('./db'); // Путь к db.js
+const db = require('./db'); 
 
 const adminData = {
   email: '',
