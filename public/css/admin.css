@@ -84,29 +84,7 @@ input, textarea, select, label {
   animation: fadeIn 0.3s ease;
 }
 
-/* Таблицы */
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1.5rem;
-}
 
-.data-table th,
-.data-table td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-
-.data-table th {
-  background: #f8f9fa;
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.data-table tr:hover {
-  background: #f8f9fa;
-}
 
 /* Формы */
 .form-container {
@@ -494,20 +472,62 @@ input, textarea, select, label {
 }
 
 /* Стили для таблицы */
-
-/*.data-table td:nth-child(4) {
-    text-align: center;
-    color: #27ae60;
-    font-weight: bold;
-}*/
-
-.data-table td:nth-child(3) { /* 4-я колонка (email) */
-  text-align: center !important;
-  color: #333 !important;
-  padding: 0 15px;
+/* Таблицы */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
 }
 
-.data-table td:nth-child(2) { /* Для колонки с датой */
-  min-width: 120px;
-  text-align: center;
+/* Общие стили заголовков */
+.data-table th {
+  text-align: center !important;
+  vertical-align: middle;
+  white-space: nowrap;
+  padding: 1rem 0.5rem !important;
+}
+
+/* Специфичные стили для колонок */
+.data-table th:nth-child(1),
+.data-table td:nth-child(1) { /* ID */
+  width: 5%;
+  text-align: center !important;
+}
+
+.data-table th:nth-child(2),
+.data-table td:nth-child(2) { /* ФИО */
+  width: 25%;
+  text-align: left !important;
+  padding-left: 2rem !important;
+}
+
+.data-table th:nth-child(3),
+.data-table td:nth-child(3) { /* Дата рождения */
+  width: 12%;
+  text-align: center !important;
+}
+
+.data-table th:nth-child(4),
+.data-table td:nth-child(4) { /* Email */
+  width: 25%;
+  text-align: center !important;
+}
+
+.data-table th:nth-child(5),
+.data-table td:nth-child(5) { /* Подтверждён */
+  width: 10%;
+  text-align: center !important;
+}
+
+.data-table th:nth-child(6),
+.data-table td:nth-child(6) { /* Действия */
+  width: 15%;
+  text-align: center !important;
+}
+
+/* Фикс для выравнивания содержимого */
+.data-table td {
+  vertical-align: middle !important;
+  padding: 0.8rem 0.5rem !important;
+  box-sizing: border-box;
 }
