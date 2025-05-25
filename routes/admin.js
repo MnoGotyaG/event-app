@@ -94,7 +94,7 @@ router.get('/users', async (req, res) => {
 // Главная админ-панель
 router.get('/dashboard', isAdmin, async (req, res) => {
   try {
-    const [users, events, locations, themes,cities] = await Promise.all([
+    const [users, events, locations, themes, cities] = await Promise.all([
       db.query('SELECT * FROM users ORDER BY created_at DESC'),
       db.query(`
         SELECT 
@@ -110,7 +110,7 @@ router.get('/dashboard', isAdmin, async (req, res) => {
         ORDER BY e.event_date DESC
       `),
       db.query('SELECT * FROM locations ORDER BY metro_station'),
-      db.query('SELECT * FROM event_themes ORDER BY name'),
+      db.query('SELECT * FROM themes ORDER BY name'),
       db.query('SELECT * FROM cities ORDER BY name'),
       db.query(`
         SELECT 
@@ -205,34 +205,35 @@ router.post('/confirm-user/:userId', isAdmin, async (req, res) => {
 // Создание мероприятия
 router.post('/events', isAdmin, async (req, res) => {
     try {
-        const { title, description, event_date, city_id, street_id, theme_id, max_participants } = req.body;
-        
-        // Создаем новую локацию
-        const locationRes = await db.query(
-            `INSERT INTO locations (city_id, street_id)
-             VALUES ($1, $2)
-             RETURNING id`,
-            [city_id, street_id]
-        );
+        const { 
+            title, 
+            description, 
+            event_date, 
+            city_id, 
+            location_id, 
+            theme_id, 
+            max_participants 
+        } = req.body;
 
         await db.query(
             `INSERT INTO events 
-            (title, description, event_date, location_id, theme_id, max_participants)
-            VALUES ($1, $2, $3, $4, $5, $6)`,
+            (title, description, event_date, city_id, location_id, theme_id, max_participants)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)`,
             [
                 title, 
                 description, 
                 event_date, 
-                locationRes.rows[0].id, 
+                city_id, 
+                location_id, 
                 theme_id, 
-                max_participants
+                max_participants || null
             ]
         );
         
         res.redirect('/admin/dashboard#events');
     } catch (err) {
         console.error('Ошибка создания мероприятия:', err);
-        res.status(500).render('error', { message: 'Ошибка создания мероприятия' });
+        res.status(500).send('Ошибка создания мероприятия: ' + err.message);
     }
 });
 // Удаление мероприятия
