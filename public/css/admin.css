@@ -495,10 +495,16 @@ input, textarea, select, label {
 
 /* Стили для таблицы */
 
-.data-table td:nth-child(4) {
+/*.data-table td:nth-child(4) {
     text-align: center;
     color: #27ae60;
     font-weight: bold;
+}*/
+
+.data-table td:nth-child(4) { /* 4-я колонка (email) */
+  text-align: center !important;
+  color: #333 !important;
+  padding: 0 15px;
 }
 
 .data-table td:nth-child(4) { /* Для колонки с датой */
