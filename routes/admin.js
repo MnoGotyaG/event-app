@@ -94,7 +94,7 @@ router.get('/users', async (req, res) => {
 // Главная админ-панель
 router.get('/dashboard', isAdmin, async (req, res) => {
   try {
-    const [users, events, locations, themes] = await Promise.all([
+    const [users, events, locations, themes,cities] = await Promise.all([
       db.query('SELECT * FROM users ORDER BY created_at DESC'),
       db.query(`
         SELECT 
@@ -111,6 +111,7 @@ router.get('/dashboard', isAdmin, async (req, res) => {
       `),
       db.query('SELECT * FROM locations ORDER BY metro_station'),
       db.query('SELECT * FROM event_themes ORDER BY name'),
+      db.query('SELECT * FROM cities ORDER BY name'),
       db.query(`
         SELECT 
           e.title,
@@ -178,8 +179,9 @@ router.get('/dashboard', isAdmin, async (req, res) => {
       pastEvents: pastEvents.rows,
       admin: req.session.admin,
       usersActivity: usersActivity.rows,
-      topEvents: topEvents.rows
+      topEvents: topEvents.rows,
       themes: themes.rows
+      cities: cities.rows
     });
 
   } catch (err) {
