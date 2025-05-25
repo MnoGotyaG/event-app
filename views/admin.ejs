@@ -232,6 +232,15 @@
                         <input type="number" name="max_participants" id="editEventMaxParticipants" min="1">
                     </div>
                 </div>
+
+                <div class="filters">
+                    <select id="eventCityFilter">
+                        <option value="">Все города</option>
+                        <% cities.forEach(city => { %>
+                            <option value="<%= city.id %>"><%= city.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Локация:</label>
@@ -292,13 +301,23 @@
             <!-- Форма добавления локации -->
             <div class="form-container">
                 <form action="/admin/locations" method="POST" class="inline-form">
-                    <div class="form-group">
-                        <label>Станция метро:</label>
-                        <input type="text" name="metro_station" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Адрес:</label>
-                        <input type="text" name="address" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Город:</label>
+                            <select name="city_id" required>
+                                <% cities.forEach(city => { %>
+                                    <option value="<%= city.id %>"><%= city.name %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Станция метро:</label>
+                            <input type="text" name="metro_station" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Адрес:</label>
+                            <input type="text" name="address" required>
+                        </div>
                     </div>
                     <button type="submit" class="btn-add">➕ Добавить локацию</button>
                 </form>
@@ -320,6 +339,15 @@
                     <button type="submit" class="btn-save">Сохранить</button>
                 </div>
             </form>
+
+            <div class="filters">
+                <select id="locationCityFilter">
+                    <option value="">Все города</option>
+                    <% cities.forEach(city => { %>
+                        <option value="<%= city.id %>"><%= city.name %></option>
+                    <% }) %>
+                </select>
+            </div>
 
             <!-- Список локаций -->
             <div class="scroll-container">
@@ -612,6 +640,23 @@
         ).join('');
     });
 
+    // Общая функция для фильтрации
+    async function applyFilter(filterElement, endpoint, containerId) {
+        const cityId = filterElement.value;
+        const response = await fetch(`/admin/${endpoint}?city_id=${cityId}`);
+        const data = await response.json();
+        const container = document.getElementById(containerId);
+        
+        container.innerHTML = data.map(item => `
+            <div class="location-card">
+                <h3>${item.metro_station}</h3>
+                <p>📍 ${item.address}</p>
+                <p>🏙️ ${item.city_name}</p>
+                <!-- ... остальные поля ... -->
+            </div>
+        `).join('');
+    }
+
     // Инициализация при загрузке страницы
     window.addEventListener('DOMContentLoaded', async () => {
         const citySelect = document.getElementById('citySelect');
@@ -625,6 +670,16 @@
                 </option>`
             ).join('');
         }
+        // Для локаций
+        document.getElementById('locationCityFilter').addEventListener('change', (e) => {
+            applyFilter(e.target, 'locations/filter', 'locationsContainer');
+        });
+
+        // Для мероприятий
+        document.getElementById('eventCityFilter').addEventListener('change', (e) => {
+            applyFilter(e.target, 'events/filter', 'eventsContainer');
+        });
+
     });
 </script>
 

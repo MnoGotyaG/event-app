@@ -275,6 +275,52 @@ router.post('/locations/delete/:locationId', isAdmin, async (req, res) => {
   }
 });
 
+// Фильтрация локаций
+router.get('/locations/filter', isAdmin, async (req, res) => {
+    try {
+        const { city_id } = req.query;
+        let query = 'SELECT * FROM locations';
+        const params = [];
+        
+        if(city_id) {
+            query += ' WHERE city_id = $1';
+            params.push(city_id);
+        }
+        
+        query += ' ORDER BY metro_station';
+        const result = await db.query(query, params);
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Фильтрация мероприятий
+router.get('/events/filter', isAdmin, async (req, res) => {
+    try {
+        const { city_id } = req.query;
+        let query = `
+            SELECT e.*, c.name as city_name, 
+            COUNT(ue.user_id)::int as participants
+            FROM events e
+            LEFT JOIN user_events ue ON e.id = ue.event_id
+            JOIN cities c ON e.city_id = c.id
+        `;
+        
+        const params = [];
+        if(city_id) {
+            query += ' WHERE e.city_id = $1';
+            params.push(city_id);
+        }
+        
+        query += ' GROUP BY e.id, c.name ORDER BY e.event_date DESC';
+        const result = await db.query(query, params);
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Обновление мероприятия
 router.post('/events/update', isAdmin, async (req, res) => {
     try {
@@ -302,6 +348,20 @@ router.post('/events/update', isAdmin, async (req, res) => {
     } catch (err) {
         console.error('Ошибка обновления:', err);
         res.status(500).render('error', { message: 'Ошибка обновления мероприятия' });
+    }
+});
+
+router.post('/locations', isAdmin, async (req, res) => {
+    try {
+        const { city_id, metro_station, address } = req.body;
+        await db.query(
+            'INSERT INTO locations (city_id, metro_station, address) VALUES ($1, $2, $3)',
+            [city_id, metro_station, address]
+        );
+        res.redirect('/admin/dashboard#locations');
+    } catch (err) {
+        console.error('Ошибка добавления локации:', err);
+        res.status(500).send('Ошибка добавления локации: ' + err.message);
     }
 });
 
