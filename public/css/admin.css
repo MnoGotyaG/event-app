@@ -500,3 +500,8 @@ input, textarea, select, label {
     color: #27ae60;
     font-weight: bold;
 }
+
+.data-table td:nth-child(4) { /* Для колонки с датой */
+  min-width: 120px;
+  text-align: center;
+}

@@ -72,6 +72,25 @@ router.get('/logout', (req, res) => {
   });
 });
 
+router.get('/users', async (req, res) => {
+  try {
+    const result = await db.query(`
+      SELECT 
+        id,
+        first_name,
+        last_name,
+        email,
+        TO_CHAR(birth_date, 'DD.MM.YYYY') AS birth_date, // Форматируем дату
+        confirmed
+      FROM users
+    `);
+    res.render('admin', { users: result.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+});
+
 // Главная админ-панель
 router.get('/dashboard', isAdmin, async (req, res) => {
   try {

@@ -117,6 +117,7 @@
                         <tr>
                             <th>ID</th>
                             <th>ФИО</th>
+                            <th>Дата рождения</th>
                             <th>Email</th>
                             <th>Подтверждён</th>
                             <th>Действия</th>
@@ -127,6 +128,7 @@
                             <tr>
                                 <td><%= user.id %></td>
                                 <td><%= user.last_name %> <%= user.first_name %></td>
+                                <td><%= user.birth_date || 'Не указана' %></td>
                                 <td><%= user.email %></td>
                                 <td><%= user.confirmed ? '✅' : '❌' %></td>
                                 <td>
