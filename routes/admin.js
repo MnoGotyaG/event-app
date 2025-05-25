@@ -200,21 +200,37 @@ router.post('/confirm-user/:userId', isAdmin, async (req, res) => {
 
 // Создание мероприятия
 router.post('/events', isAdmin, async (req, res) => {
-  try {
-    const { title, description, event_date, location_id, max_participants } = req.body;
-    
-    await db.query(
-      `INSERT INTO events 
-      (title, description, event_date, location_id, max_participants)
-      VALUES ($1, $2, $3, $4, $5)`,
-      [title, description, event_date, location_id, max_participants]
-    );
-    
-    res.redirect('/admin/dashboard#events');
-  } catch (err) {
-    console.error('Ошибка создания мероприятия:', err);
-    res.status(500).render('error', { message: 'Ошибка создания мероприятия' });
-  }
+    try {
+        const { title, description, event_date, city_id, street_id, theme_id, max_participants } = req.body;
+        
+        // Создаем или находим локацию
+        const locationResult = await db.query(
+            `INSERT INTO locations (street_id) 
+            VALUES ($1) 
+            RETURNING id`,
+            [street_id]
+        );
+        
+        await db.query(
+            `INSERT INTO events 
+            (title, description, event_date, location_id, city_id, theme_id, max_participants)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+            [
+                title, 
+                description, 
+                event_date, 
+                locationResult.rows[0].id, 
+                city_id, 
+                theme_id, 
+                max_participants
+            ]
+        );
+        
+        res.redirect('/admin/dashboard#events');
+    } catch (err) {
+        console.error('Ошибка создания мероприятия:', err);
+        res.status(500).render('error', { message: 'Ошибка создания мероприятия' });
+    }
 });
 
 // Удаление мероприятия
@@ -347,6 +363,37 @@ router.post('/attendance/:eventId', isAdmin, async (req, res) => {
     } catch (err) {
         console.error('Ошибка обновления:', err);
         res.status(500).json({ error: 'Ошибка сервера' });
+    }
+});
+
+// Получение списка городов
+router.get('/cities', isAdmin, async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM cities ORDER BY name');
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Получение улиц по городу
+router.get('/streets', isAdmin, async (req, res) => {
+    try {
+        const { city_id } = req.query;
+        const result = await db.query('SELECT * FROM streets WHERE city_id = $1 ORDER BY name', [city_id]);
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Получение тем мероприятий
+router.get('/themes', isAdmin, async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM event_themes ORDER BY name');
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
