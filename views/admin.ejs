@@ -233,14 +233,7 @@
                     </div>
                 </div>
 
-                <div class="filters">
-                    <select id="eventCityFilter">
-                        <option value="">Все города</option>
-                        <% cities.forEach(city => { %>
-                            <option value="<%= city.id %>"><%= city.name %></option>
-                        <% }) %>
-                    </select>
-                </div>
+                
                 <div class="form-row">
                     <div class="form-group">
                         <label>Локация:</label>
@@ -259,9 +252,18 @@
                 </div>
             </form>
 
+            <div class="filters">
+                <select id="eventCityFilter">
+                    <option value="">Все города</option>
+                    <% cities.forEach(city => { %>
+                        <option value="<%= city.id %>"><%= city.name %></option>
+                    <% }) %>
+                </select>
+            </div>
+
             <!-- Список мероприятий -->
             <div class="scroll-container">
-                <div class="cards-grid">
+                <div class="cards-grid" id="eventsContainer">
                     <% events.forEach(event => { %>
                         <div class="event-card">
                             <h3><%= event.title %></h3>
@@ -351,7 +353,7 @@
 
             <!-- Список локаций -->
             <div class="scroll-container">
-                <div class="cards-grid">
+                <div class="cards-grid" id="locationsContainer">
                     <% locations.forEach(location => { %>
                         <div class="location-card">
                             <div class="location-info">
@@ -647,15 +649,39 @@
         const data = await response.json();
         const container = document.getElementById(containerId);
         
-        container.innerHTML = data.map(item => `
-            <div class="location-card">
-                <h3>${item.metro_station}</h3>
-                <p>📍 ${item.address}</p>
-                <p>🏙️ ${item.city_name}</p>
-                <!-- ... остальные поля ... -->
-            </div>
-        `).join('');
+        // Шаблон для мероприятий
+        if(containerId === 'eventsContainer') {
+            container.innerHTML = data.map(event => `
+                <div class="event-card">
+                    <h3>${event.title}</h3>
+                    <div class="event-details">
+                        <p>📅 ${new Date(event.event_date).toLocaleString()}</p>
+                        <p>👥 Участников: ${event.participants}</p>
+                        <p>🏙️ ${event.city_name}</p>
+                        <p>📍 ${event.address}</p>
+                    </div>
+                    <div class="event-actions">
+                        <!-- ... кнопки действий ... -->
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Шаблон для локаций
+        if(containerId === 'locationsContainer') {
+            container.innerHTML = data.map(location => `
+                <div class="location-card">
+                    <div class="location-info">
+                        <h3>🚇 ${location.metro_station}</h3>
+                        <p>📍 ${location.address}</p>
+                        <p>🏙️ ${location.city_name}</p>
+                    </div>
+                    <!-- ... кнопки действий ... -->
+                </div>
+            `).join('');
+        }
     }
+
 
     // Инициализация при загрузке страницы
     window.addEventListener('DOMContentLoaded', async () => {

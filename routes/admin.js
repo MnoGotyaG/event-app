@@ -276,18 +276,23 @@ router.post('/locations/delete/:locationId', isAdmin, async (req, res) => {
 });
 
 // Фильтрация локаций
+// Для локаций
 router.get('/locations/filter', isAdmin, async (req, res) => {
     try {
         const { city_id } = req.query;
-        let query = 'SELECT * FROM locations';
-        const params = [];
+        let query = `
+            SELECT l.*, c.name as city_name 
+            FROM locations l
+            JOIN cities c ON l.city_id = c.id
+        `;
         
+        const params = [];
         if(city_id) {
-            query += ' WHERE city_id = $1';
+            query += ' WHERE l.city_id = $1';
             params.push(city_id);
         }
         
-        query += ' ORDER BY metro_station';
+        query += ' ORDER BY l.metro_station';
         const result = await db.query(query, params);
         res.json(result.rows);
     } catch (err) {
@@ -301,10 +306,13 @@ router.get('/events/filter', isAdmin, async (req, res) => {
         const { city_id } = req.query;
         let query = `
             SELECT e.*, c.name as city_name, 
-            COUNT(ue.user_id)::int as participants
+            COUNT(ue.user_id)::int as participants,
+            l.metro_station,
+            l.address
             FROM events e
             LEFT JOIN user_events ue ON e.id = ue.event_id
             JOIN cities c ON e.city_id = c.id
+            JOIN locations l ON e.location_id = l.id
         `;
         
         const params = [];
@@ -313,7 +321,7 @@ router.get('/events/filter', isAdmin, async (req, res) => {
             params.push(city_id);
         }
         
-        query += ' GROUP BY e.id, c.name ORDER BY e.event_date DESC';
+        query += ' GROUP BY e.id, c.name, l.metro_station, l.address ORDER BY e.event_date DESC';
         const result = await db.query(query, params);
         res.json(result.rows);
     } catch (err) {
