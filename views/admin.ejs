@@ -359,7 +359,10 @@
                         <div class="location-card">
                             <div class="location-info">
                                 <h3>🚇 <%= location.metro_station %></h3>
-                                <p>📍 <%= location.address %></p>
+                                <p>📍 ${location.address}</p>
+                                <% if (location.city_name) { %>
+                                    <p class="city-tag">🏙️ <%= location.city_name %></p>
+                                <% } %>
                             </div>
                             <div class="location-actions">
                                 <button 

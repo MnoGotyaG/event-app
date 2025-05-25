@@ -197,10 +197,36 @@ input, textarea, select, label {
 /* Специфичные стили для локаций */
 /* Обновим стили для карточек локаций */
 .location-card {
-  min-height: 180px; /* Фиксированная минимальная высота */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+    color: #333 !important;
+    min-height: 200px;
+    position: relative;
+}
+
+.location-card h3 {
+    color: #2c3e50 !important;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.location-card p {
+    color: #666 !important;
+    margin: 0.3rem 0;
+    font-size: 0.95rem;
+}
+
+.city-tag {
+    color: #3f51b5 !important;
+    background: #f0f4ff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 10px !important;
+}
+
+.location-actions {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
 }
 
 .location-info {
