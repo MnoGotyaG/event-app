@@ -128,7 +128,7 @@
                             <tr>
                                 <td><%= user.id %></td>
                                 <td><%= user.last_name %> <%= user.first_name %></td>
-                                <td><%= user.birth_date || 'Не указана' %></td>
+                                <td><%= new Date(user.birth_date).toLocaleDateString('ru-RU') %></td>
                                 <td><%= user.email %></td>
                                 <td><%= user.confirmed ? '✅' : '❌' %></td>
                                 <td>
