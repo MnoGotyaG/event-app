@@ -94,7 +94,7 @@
                         <h3><%= event.title %></h3>
                         <div class="event-meta">
                             <span class="date">
-                                <%= event.event_date.toLocaleDateString('ru-RU') %>
+                                <%= event.event_date_formatted.split(' ')[0] %> 
                             </span>
                             <span class="location">
                                 <%= event.metro_station %>
