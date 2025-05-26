@@ -9,30 +9,33 @@ router.get('/', async (req, res) => {
     const twoWeeksLater = new Date(today.getTime() + 21 * 24 * 60 * 60 * 1000);
     const { location: queryLocation, theme: queryTheme } = req.query;
 
-    // Валидация числовых параметров
-    const parseIntegerParam = (value, paramName) => {
-      if (!value) return null;
-      const num = parseInt(value, 10);
-      return isNaN(num) ? null : num;
-    };
+    // Валидация параметров
+    const parseParam = (value) => value ? parseInt(value, 10) || null : null;
+    const locationId = parseParam(queryLocation);
+    const themeId = parseParam(queryTheme);
+    const selectedCityId = req.session.city_id ? parseInt(req.session.city_id, 10) : null;
 
-    const locationId = parseIntegerParam(queryLocation, 'location');
-    const themeId = parseIntegerParam(queryTheme, 'theme');
+    // Формируем условия и параметры
+    const conditions = [];
+    const params = [today, twoWeeksLater];
 
-    // Получаем выбранный город из сессии (проверяем на число)
-    const selectedCityId = req.session.city_id 
-      ? parseInt(req.session.city_id, 10)
-      : null;
+    // Условие для города
+    if (selectedCityId) {
+      conditions.push(`l.city_id = $${params.length + 1}`);
+      params.push(selectedCityId);
+    }
 
-    // Запросы к БД
-    const [cities, locations, themes] = await Promise.all([
-      db.query('SELECT * FROM cities'),
-      db.query(
-        'SELECT * FROM locations WHERE city_id = COALESCE($1, city_id)',
-        [selectedCityId]
-      ),
-      db.query('SELECT * FROM themes')
-    ]);
+    // Условие для локации
+    if (locationId !== null) {
+      conditions.push(`l.id = $${params.length + 1}`);
+      params.push(locationId);
+    }
+
+    // Условие для темы
+    if (themeId !== null) {
+      conditions.push(`t.id = $${params.length + 1}`);
+      params.push(themeId);
+    }
 
     // Базовый SQL-запрос
     let query = `
@@ -49,50 +52,33 @@ router.get('/', async (req, res) => {
       JOIN locations l ON e.location_id = l.id
       JOIN themes t ON e.theme_id = t.id
       WHERE e.event_date BETWEEN $1 AND $2
-      ${selectedCityId ? 'AND l.city_id = $3' : ''}
+      ${conditions.length ? 'AND ' + conditions.join(' AND ') : ''}
+      ORDER BY e.event_date ASC
     `;
 
-
-    const params = [today, twoWeeksLater];
-    if (selectedCityId) params.push(selectedCityId);
-    let paramIndex = 3;
-
-    // Фильтр по городу
-    if (selectedCityId) {
-      query += ` AND l.city_id = $${paramIndex}`;
-      params.push(selectedCityId);
-      paramIndex++;
-    }
-
-    // Фильтр по локации (только если валидный ID)
-    if (locationId !== null) {
-      query += ` AND l.id = $${paramIndex}`;
-      params.push(locationId);
-      paramIndex++;
-    }
-
-    // Фильтр по тематике (только если валидный ID)
-    if (themeId !== null) {
-      query += ` AND t.id = $${paramIndex}`;
-      params.push(themeId);
-      paramIndex++;
-    }
-
-    query += ' ORDER BY e.event_date ASC';
+    // Логирование для отладки
+    console.log('SQL Query:', query);
+    console.log('Params:', params);
 
     // Выполнение запроса
-    const result = await db.query(query, params);
+    const [eventsResult, citiesResult, locationsResult, themesResult] = await Promise.all([
+      db.query(query, params),
+      db.query('SELECT * FROM cities'),
+      db.query('SELECT * FROM locations WHERE city_id = COALESCE($1, city_id)', [selectedCityId]),
+      db.query('SELECT * FROM themes')
+    ]);
 
-    // Рендеринг с данными
+    // Рендеринг шаблона
     res.render('events', {
       title: 'Мероприятия',
-      stylesheet: '/css/events.css',
-      events: result.rows,
-      locations: locations.rows,
-      themes: themes.rows,
+      events: eventsResult.rows,
+      cities: citiesResult.rows,
+      locations: locationsResult.rows,
+      themes: themesResult.rows,
       user: req.session.user,
       queryLocation: locationId || '',
-      queryTheme: themeId || ''
+      queryTheme: themeId || '',
+      sessionCity: selectedCityId
     });
 
   } catch (err) {
