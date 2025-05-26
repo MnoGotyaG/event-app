@@ -290,7 +290,7 @@ router.post('/update', async (req, res) => {
             ...result.rows[0]
         };
 
-        res.redirect('/profile');
+        res.redirect('/users/profile');
 
     } catch (err) {
         console.error('Ошибка обновления:', err);
