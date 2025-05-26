@@ -171,7 +171,7 @@ router.get('/profile', async (req, res) => {
         email,
         phone,
         telegram,
-        is_verified
+        confirmed AS is_verified // Исправлено здесь
        FROM users 
        WHERE id = $1`,
       [req.session.user.id]
