@@ -189,7 +189,8 @@ router.get('/profile', async (req, res) => {
     const eventsQuery = await db.query(
       `SELECT 
         e.title,
-        TO_CHAR(e.event_date, 'DD.MM.YYYY HH24:MI') AS event_date,
+        e.event_date AS event_date_raw,
+        TO_CHAR(e.event_date, 'DD.MM.YYYY HH24:MI') AS event_date_formatted,
         l.metro_station,
         l.address,
         ue.attended
