@@ -7,18 +7,34 @@ router.get('/', async (req, res) => {
   try {
     const today = new Date();
     const twoWeeksLater = new Date(today.getTime() + 21 * 24 * 60 * 60 * 1000);
-    const { location: queryLocation, theme: queryTheme, city: queryCity } = req.query;
-    const selectedCityId = req.session.city_id;
+    const { location: queryLocation, theme: queryTheme } = req.query;
 
-    // Получаем данные из БД
-    const cities = await db.query('SELECT * FROM cities');
-    const locations = await db.query(
-      'SELECT * FROM locations WHERE city_id = COALESCE($1, city_id)',
-      [selectedCityId]
-    );
-    const themes = await db.query('SELECT * FROM themes');
+    // Валидация числовых параметров
+    const parseIntegerParam = (value, paramName) => {
+      if (!value) return null;
+      const num = parseInt(value, 10);
+      return isNaN(num) ? null : num;
+    };
 
-    // Формируем SQL-запрос
+    const locationId = parseIntegerParam(queryLocation, 'location');
+    const themeId = parseIntegerParam(queryTheme, 'theme');
+
+    // Получаем выбранный город из сессии (проверяем на число)
+    const selectedCityId = typeof req.session.city_id === 'number' 
+      ? req.session.city_id 
+      : null;
+
+    // Запросы к БД
+    const [cities, locations, themes] = await Promise.all([
+      db.query('SELECT * FROM cities'),
+      db.query(
+        'SELECT * FROM locations WHERE city_id = COALESCE($1, city_id)',
+        [selectedCityId]
+      ),
+      db.query('SELECT * FROM themes')
+    ]);
+
+    // Базовый SQL-запрос
     let query = `
       SELECT 
         e.id, 
@@ -33,44 +49,55 @@ router.get('/', async (req, res) => {
       JOIN locations l ON e.location_id = l.id
       JOIN themes t ON e.theme_id = t.id
       WHERE e.event_date BETWEEN $1 AND $2
-      ${selectedCityId ? 'AND l.city_id = $3' : ''}
     `;
 
     const params = [today, twoWeeksLater];
-    if (selectedCityId) params.push(selectedCityId);
+    let paramIndex = 3;
 
-    // Добавляем фильтры
-    if (queryLocation) {
-      query += ' AND l.id = $' + (params.length + 1);
-      params.push(queryLocation);
+    // Фильтр по городу
+    if (selectedCityId) {
+      query += ` AND l.city_id = $${paramIndex}`;
+      params.push(selectedCityId);
+      paramIndex++;
     }
-    if (queryTheme) {
-      query += ' AND t.id = $' + (params.length + 1);
-      params.push(queryTheme);
+
+    // Фильтр по локации (только если валидный ID)
+    if (locationId !== null) {
+      query += ` AND l.id = $${paramIndex}`;
+      params.push(locationId);
+      paramIndex++;
+    }
+
+    // Фильтр по тематике (только если валидный ID)
+    if (themeId !== null) {
+      query += ` AND t.id = $${paramIndex}`;
+      params.push(themeId);
+      paramIndex++;
     }
 
     query += ' ORDER BY e.event_date ASC';
 
-    // Выполняем запрос
+    // Выполнение запроса
     const result = await db.query(query, params);
 
-    // Рендерим шаблон
+    // Рендеринг с данными
     res.render('events', {
       title: 'Мероприятия',
       stylesheet: '/css/events.css',
       events: result.rows,
-      //cities: cities.rows,
       locations: locations.rows,
       themes: themes.rows,
       user: req.session.user,
-      queryLocation: queryLocation || '',
-      queryTheme: queryTheme || '',
-      //queryCity: queryCity || ''
+      queryLocation: locationId || '',
+      queryTheme: themeId || ''
     });
 
   } catch (err) {
     console.error('Ошибка загрузки мероприятий:', err);
-    res.status(500).render('error', { message: 'Ошибка сервера' });
+    res.status(500).render('error', { 
+      title: 'Ошибка',
+      message: 'Не удалось загрузить мероприятия' 
+    });
   }
 });
 
