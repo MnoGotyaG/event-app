@@ -20,8 +20,8 @@ router.get('/', async (req, res) => {
     const themeId = parseIntegerParam(queryTheme, 'theme');
 
     // Получаем выбранный город из сессии (проверяем на число)
-    const selectedCityId = typeof req.session.city_id === 'number' 
-      ? req.session.city_id 
+    const selectedCityId = req.session.city_id 
+      ? parseInt(req.session.city_id, 10)
       : null;
 
     // Запросы к БД
@@ -49,9 +49,12 @@ router.get('/', async (req, res) => {
       JOIN locations l ON e.location_id = l.id
       JOIN themes t ON e.theme_id = t.id
       WHERE e.event_date BETWEEN $1 AND $2
+      ${selectedCityId ? 'AND l.city_id = $3' : ''}
     `;
 
+
     const params = [today, twoWeeksLater];
+    if (selectedCityId) params.push(selectedCityId);
     let paramIndex = 3;
 
     // Фильтр по городу
@@ -166,4 +169,26 @@ router.post('/:id/register', async (req, res) => {
   }
 });
 
+
+router.post('/set-city', async (req, res) => {
+  try {
+    const cityId = parseInt(req.body.city, 10);
+    
+    // Проверка существования города в БД
+    const result = await db.query('SELECT id FROM cities WHERE id = $1', [cityId]);
+    
+    if (result.rows.length === 0) {
+      return res.status(400).send('Неверный город');
+    }
+
+    // Сохраняем в сессии как число
+    req.session.city_id = cityId;
+    res.redirect('back');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Ошибка сервера');
+  }
+});
+
 module.exports = router;
+

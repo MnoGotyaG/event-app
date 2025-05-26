@@ -86,12 +86,24 @@ app.use(async (req, res, next) => {
 });
 
 // Обработка выбора города (POST)
-app.post("/set-city", (req, res) => {
-  req.session.cityId = req.body.city;
-  
-  // Получаем предыдущий URL из заголовка Referer или перенаправляем на главную
-  const previousUrl = req.headers.referer || "/index";
-  res.redirect(previousUrl);
+app.post("/set-city", async (req, res) => {
+  try {
+    const cityId = parseInt(req.body.city, 10);
+
+    // Проверка существования города
+    const result = await db.query('SELECT id FROM cities WHERE id = $1', [cityId]);
+    if (!result.rows.length) {
+      return res.status(400).redirect('back');
+    }
+
+    // Сохраняем ID города в сессии
+    req.session.city_id = cityId;
+    res.redirect(req.headers.referer || "/");
+    
+  } catch (err) {
+    console.error('Ошибка выбора города:', err);
+    res.status(500).redirect('/');
+  }
 });
 // Блокировка GET-запросов
 app.get("/set-city", (req, res) => {
