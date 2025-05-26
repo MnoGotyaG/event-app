@@ -189,8 +189,7 @@ router.get('/profile', async (req, res) => {
     const eventsQuery = await db.query(
       `SELECT 
         e.title,
-        e.event_date AS event_date_raw, // получаем как объект даты
-        TO_CHAR(e.event_date, 'DD.MM.YYYY HH24:MI') AS event_date_formatted,
+        TO_CHAR(e.event_date, 'DD.MM.YYYY HH24:MI') AS event_date,
         l.metro_station,
         l.address,
         ue.attended
@@ -211,7 +210,7 @@ router.get('/profile', async (req, res) => {
         patronymic: user.patronymic || 'Не указано'
       },
       events: eventsQuery.rows,
-      isVerified: user.is_verified,
+      isVerified: user.confirmed,
       helpers: {
         // Функция для форматирования телефона
         formatPhone: (phone) => {

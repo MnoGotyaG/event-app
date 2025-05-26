@@ -5,7 +5,7 @@
 
 <main class="profile-container">
     <!-- Блок статуса подтверждения -->
-    <% if (!user.is_verified) { %>
+    <% if (!user.confirmed) { %>
     <div class="verification-warning">
         ⚠️ Пользователь не подтвержден. Принесите паспорт на первое мероприятие.
     </div>
@@ -94,7 +94,7 @@
                         <h3><%= event.title %></h3>
                         <div class="event-meta">
                             <span class="date">
-                                <%= event.event_date_formatted.split(' ')[0] %> 
+                                <%= event.event_date.toLocaleDateString('ru-RU') %> 
                             </span>
                             <span class="location">
                                 <%= event.metro_station %>
