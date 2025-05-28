@@ -143,7 +143,7 @@ router.post('/login', async (req, res) => {
       email: user.email
     };
 
-    res.redirect(user.confirmed ? '/users/profile');
+    res.redirect(user.confirmed ? '/profile' : '/users/profile');
    
 
   } catch (err) {
